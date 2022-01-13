@@ -22,9 +22,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ### Add movai source to list
-# RUN curl -fsSL ${GPG} | apt-key add - && \
-# RUN apt-get update && apt-get install software-properties-common
-# RUN add-apt-repository "${PPA_REPOSITORY}"
+RUN apt-get update && apt-get install curl software-properties-common -y --no-install-recommends && \
+    curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-testing testing main" && \
+    apt-get update
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
