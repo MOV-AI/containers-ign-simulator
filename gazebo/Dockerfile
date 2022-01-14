@@ -1,8 +1,8 @@
 # This Dockerfile is used to build the ignition
 FROM ubuntu:bionic
 
-ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=movai_plugins/plugins/system
-ARG IGN_GAZEBO_GUI_PLUGIN_PATH=movai_plugins/plugins/gui
+ARG IGN_SYSTEM_PLUGIN_PATH=movai_plugins/plugins/system
+ARG IGN_GUI_PLUGIN_PATH=movai_plugins/plugins/gui
 ARG PPA_REPOSITORY="deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-testing testing main"
 ARG GPG="https://artifacts.cloud.mov.ai/repository/movai-applications/gpg"
 
@@ -28,9 +28,9 @@ RUN apt-get update && apt-get install curl software-properties-common -y --no-in
     apt-get update
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
-RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
-    mkdir -p ${IGN_GAZEBO_GUI_PLUGIN_PATH}} && touch ${IGN_GAZEBO_GUI_PLUGIN_PATH}}/.keep
+RUN mkdir -p ${IGN_SYSTEM_PLUGIN_PATH} && touch ${IGN_SYSTEM_PLUGIN_PATH}/.keep && \
+    mkdir -p ${IGN_GUI_PLUGIN_PATH}} && touch ${IGN_GUI_PLUGIN_PATH}}/.keep
 
 ### Set plugin env
-ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}
-ENV IGN_GAZEBO_GUI_PLUGIN_PATH=${IGN_GAZEBO_GUI_PLUGIN_PATH}
+ENV IGN_SYSTEM_PLUGIN_PATH=${IGN_SYSTEM_PLUGIN_PATH}
+ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}
