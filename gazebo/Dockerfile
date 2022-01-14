@@ -1,8 +1,8 @@
 # This Dockerfile is used to build the ignition
 FROM ubuntu:bionic
 
-ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/movai_plugins/plugins/system
-ARG IGN_GUI_PLUGIN_PATH=/movai_plugins/plugins/gui
+ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/movai_ign_plugins/plugins/system
+ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/plugins/gui
 ARG PPA_REPOSITORY="deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-testing testing main"
 ARG GPG="https://artifacts.cloud.mov.ai/repository/movai-applications/gpg"
 
