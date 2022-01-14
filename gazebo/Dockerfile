@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install curl software-properties-common -y --no-in
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
-    mkdir -p ${IGN_GUI_PLUGIN_PATH}} && touch ${IGN_GUI_PLUGIN_PATH}}/.keep
+    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
 
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}
