@@ -3,6 +3,8 @@ FROM ubuntu:bionic
 
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/movai_ign_plugins/system
 ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
+ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
+ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
 ARG PPA_REPOSITORY="deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-testing testing main"
 ARG GPG="https://artifacts.cloud.mov.ai/repository/movai-applications/gpg"
 
@@ -32,5 +34,5 @@ RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGI
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
 
 ### Set plugin env
-ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}
-ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}
+ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
+ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
