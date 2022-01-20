@@ -2,23 +2,37 @@
 
 # containers-ros-tools
 
-ROS TOOLS Docker image for MOV.AI Framework
+Ignition Simulator Docker image for MOV.AI Framework
 
-Image is built in 2 flavours:
+Image is built as follow :
 
-| Flavour      | Base Image | Python |
+| Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ros-tools-melodic | ros:melodic-robot | 3.6.9 |
-| ros-tools-noetic | ros:noetic-robot | 3.8.10 |
+| ignition-gazebo | movai-base-bionic | 1.0.2-1 |
 
 ## About
 
 ## Usage
 
-Build ROS TOOLS image based on ROS melodic :
+Build IGN Simulator image based on MOVAI bionic :
 
-    docker build -t ros-tools:melodic -f melodic/Dockerfile .
+    docker build -t ign-simulator -f gazebo/Dockerfile
 
-Build ROS TOOLS image based on ROS noetic :
+Run :
 
-    docker build -t ros-tools:noetic -f noetic/Dockerfile .
+- First of all, Install NVIDIA-DOCKER service to enable GPU resources inside the container:
+
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+    && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+    sudo apt-get update
+    sudo apt-get install -y nvidia-docker2
+
+- Restart the docker service:
+
+    sudo systemctl restart docker
+
+- Launch simulator:
+
+    xhost +local:docker
+    docker run -it -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY registry.cloud.mov.ai/devops/ign-simulator ign gazebo
