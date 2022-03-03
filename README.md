@@ -16,7 +16,7 @@ Image is built as follow :
 
 Build IGN Simulator image based on MOVAI bionic :
 
-    docker build -t ign-simulator -f gazebo/Dockerfile
+    docker build -t ign-gazebo . -f gazebo/Dockerfile
 
 Run :
 
