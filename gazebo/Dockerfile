@@ -11,12 +11,6 @@ ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
 
 ENV MOVAI_ENV="release"
 
-### nvidia-container-runtime
-ENV NVIDIA_VISIBLE_DEVICES \
-    ${NVIDIA_VISIBLE_DEVICES:-all}
-ENV NVIDIA_DRIVER_CAPABILITIES \
-    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Copy runtime scripts
