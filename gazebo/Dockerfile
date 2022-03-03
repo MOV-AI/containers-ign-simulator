@@ -20,7 +20,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Copy runtime scripts
-COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 ### Common apt packages
 RUN apt-get update && \
