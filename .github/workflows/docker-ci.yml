@@ -12,57 +12,42 @@ on:
   pull_request:
     branches:
       - main
+      - dev
   release:
     types: [released]
 jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          submodules: recursive
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_PUBLIC_TOKEN }}
+        with:
+          projectBaseDir: ./
+          args: >
+            -Dsonar.organization=mov-ai
+            -Dsonar.projectKey=MOV-AI_${{ github.event.repository.name }}
+            -Dsonar.verbose=true
+            -Dsonar.sources=.
+            -Dsonar.scm.provider=git
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
   ignition-gazebo:
     uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@main
     with:
       docker_file: gazebo/Dockerfile
-      docker_image: registry.cloud.mov.ai/devops/ignition-gazebo
+      docker_image: devops/ignition-gazebo
       github_ref: ${{ github.ref }}
+      public: true
+      public_image: ce/ignition-gazebo
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}
       registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
-  extra_tagging:
-    needs: [ignition-gazebo]
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_PUSH: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
-      DOCKER_REGISTRY: registry.cloud.mov.ai
-    if: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
-    steps:
-      - name: Login to Movai Registry
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.PORTUS_APP_USER }}
-          password: ${{ secrets.PORTUS_APP_TOKEN }}
-          registry: ${{ env.DOCKER_REGISTRY }}
-      - name: "Verify push and tag vars from env"
-        id: get_version
-        env:
-          GITHUB_REF: ${{ github.ref }}
-          DOCKER_PUSH: ${{ env.DOCKER_PUSH }}
-        run: |
-          echo $GITHUB_REF
-          echo $DOCKER_PUSH
-          if [ "${DOCKER_PUSH}" = "true" ]; then
-            if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-              echo ::set-output name=DOCKER_TAG::latest
-            else
-              echo ::set-output name=DOCKER_TAG::${GITHUB_REF##*/}
-            fi
-          else
-            echo ::set-output name=DOCKER_TAG::local
-          fi
-      - name: Extra tags
-        run: |
-          images="ignition-gazebo"
-          for img in $images; do
-            docker pull "${{ env.DOCKER_REGISTRY }}/devops/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}"
-            docker tag "${{ env.DOCKER_REGISTRY }}/devops/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}" "${{ env.DOCKER_REGISTRY }}/develop/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}"
-            docker tag "${{ env.DOCKER_REGISTRY }}/devops/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}" "${{ env.DOCKER_REGISTRY }}/qa/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}"
-            docker push "${{ env.DOCKER_REGISTRY }}/develop/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}"
-            docker push "${{ env.DOCKER_REGISTRY }}/qa/${img}:${{ steps.get_version.outputs.DOCKER_TAG }}"
-          done
-

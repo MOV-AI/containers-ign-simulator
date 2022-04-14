@@ -1,6 +1,6 @@
-[![main](https://github.com/MOV-AI/containers-ros-tools/actions/workflows/docker-ci.yml/badge.svg?branch=main)](https://github.com/MOV-AI/containers-ros-tools/actions/workflows/docker-ci.yml)
+[![Build&Deploy MOVAI Ignition Gazebo](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml/badge.svg?branch=main)](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml)
 
-# containers-ros-tools
+# MOVAI Ignition Gazebo Container
 
 Ignition Simulator Docker image for MOV.AI Framework
 
@@ -8,7 +8,7 @@ Image is built as follow :
 
 | Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ignition-gazebo | movai-base-bionic | 1.0.2-1 |
+| ignition-fortress | movai-base-bionic:v1.4.5 | 1.0.2-1 |
 
 ## About
 
@@ -16,7 +16,7 @@ Image is built as follow :
 
 Build IGN Simulator image based on MOVAI bionic :
 
-    docker build -t ignition-gazebo:test . -f gazebo/Dockerfile
+    docker build -t ign-simulator:test . -f gazebo/Dockerfile
 
 Run :
 
@@ -35,4 +35,4 @@ Run :
 - Launch simulator:
 
     xhost +local:docker
-    docker run -it -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY registry.cloud.mov.ai/devops/ign-simulator ign gazebo
+    docker run -it -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY ign-simulator:test ign gazebo
