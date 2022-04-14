@@ -12,15 +12,16 @@ Image is built as follow :
 
 ## About
 
-## Usage
+## Build
 
 Build IGN Simulator image based on MOVAI bionic :
 
     docker build -t ign-simulator:test . -f gazebo/Dockerfile
 
-Run :
+## Usage
 
 - First of all, Install NVIDIA-DOCKER service to enable GPU resources inside the container:
+
 
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
     && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
@@ -28,11 +29,16 @@ Run :
     sudo apt-get update
     sudo apt-get install -y nvidia-docker2
 
+
 - Restart the docker service:
+
 
     sudo systemctl restart docker
 
+
 - Launch simulator:
+
 
     xhost +local:docker
     docker run -it -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY ign-simulator:test ign gazebo
+
