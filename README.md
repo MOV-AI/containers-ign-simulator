@@ -10,7 +10,6 @@ Image is built as follow :
 | ------------ | ---------- | ------ |
 | ignition-fortress | movai-base-bionic:v1.4.5 | 1.0.2-1 |
 
-## About
 
 ## Build
 
