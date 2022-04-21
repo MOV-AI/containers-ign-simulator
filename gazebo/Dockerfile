@@ -1,5 +1,5 @@
 ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
-FROM ${DOCKER_REGISTRY}/devops/movai-base-bionic:v1.4.5
+FROM ${DOCKER_REGISTRY}/devops/movai-base-bionic:v1.4.9
 # This Dockerfile is used to build the ignition
 
 ### Args
@@ -20,7 +20,7 @@ COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null  && \
     apt-get update && \
-    apt-get install ignition-fortress=1.0.2-1~bionic -y --no-install-recommends && \
+    apt-get install ignition-fortress=1.0.3-1~bionic -y --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)

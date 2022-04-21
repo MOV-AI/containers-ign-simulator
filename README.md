@@ -8,7 +8,7 @@ Image is built as follow :
 
 | Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ignition-fortress | movai-base-bionic:v1.4.5 | 1.0.2-1 |
+| ignition-fortress | movai-base-bionic:v1.4.9 | 1.0.3-1 |
 
 
 ## Build
