@@ -1,5 +1,5 @@
-ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
-FROM ${DOCKER_REGISTRY}/devops/movai-base-bionic:v1.4.9
+ARG DOCKER_REGISTRY="ghcr.io/mov-ai"
+FROM ${DOCKER_REGISTRY}/ce/movai-base-bionic:v1.4.9
 # This Dockerfile is used to build the ignition
 
 ### Args
