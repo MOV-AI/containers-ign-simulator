@@ -1,26 +1,22 @@
 #!/bin/bash
+#
+# Copyright 2021 MOV.AI
+#
+#    Licensed under the Mov.AI License version 1.0;
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        https://www.mov.ai/flow-license/
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
 # File: movai-entrypoint.sh
 set -e
-printf "Mov.ai IGN Simulator - %s Edition\n" "$MOVAI_ENV"
-
-# First run apt initializations
-if [ ! -f "${MOVAI_HOME}/.first_run_apt" ]; then
-    touch "${MOVAI_HOME}/.first_run_apt"
-
-    if [ "$MOVAI_ENV" = "develop" ]; then
-        MOVAI_PPA="dev"
-    elif [ "$MOVAI_ENV" = "qa" ]; then
-        MOVAI_PPA="testing"
-    else
-        MOVAI_PPA="main"
-    fi
-    # Update ppa with correct env and make sure it is not cohabiting with another one
-    for ppa_env in dev testing main; do
-        # remove any old repo
-        sudo add-apt-repository -r -n "deb https://artifacts.cloud.mov.ai/repository/ppa-${ppa_env} ${ppa_env} main"
-    done || true
-    sudo add-apt-repository -n "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main"
-fi
+printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 export PYTHONPATH=${APP_PATH}:${MOVAI_HOME}/sdk:${PYTHONPATH}
