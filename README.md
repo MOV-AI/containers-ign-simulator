@@ -8,7 +8,7 @@ Image is built as follow :
 
 | Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ignition-fortress | movai-base-bionic:v1.4.9 | 1.0.3-1 |
+| ignition-fortress | movai-base-focal:v1.4.11 | 1.0.3-1 |
 
 
 ## Build
@@ -37,4 +37,10 @@ sudo systemctl restart docker
 ```
 xhost +local:docker
 docker run -it -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY ign-simulator:test ign gazebo
+```
+
+- Launch simulator with nvidia GPU:
+```
+xhost +local:docker
+docker run -it --privileged --runtime=nvidia -e MOVAI_ENV=qa -e QT_X11_NO_MITSHM=1 -e DISPLAY=$DISPLAY -e NVIDIA_VISIBLE_DEVICES=all -e NVIDIA_DRIVER_CAPABILITIES=graphics -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /tmp/.docker.xauth:/tmp/.docker.xauth ign-simulator:test ign gazebo
 ```
