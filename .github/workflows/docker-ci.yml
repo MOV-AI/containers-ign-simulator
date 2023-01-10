@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - dev
     tags:
       - 'v*.*.*'
   pull_request:
@@ -16,38 +17,21 @@ on:
   release:
     types: [released]
 jobs:
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          submodules: recursive
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_PUBLIC_TOKEN }}
-        with:
-          projectBaseDir: ./
-          args: >
-            -Dsonar.organization=mov-ai
-            -Dsonar.projectKey=MOV-AI_${{ github.event.repository.name }}
-            -Dsonar.verbose=true
-            -Dsonar.sources=.
-            -Dsonar.scm.provider=git
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=300
-
   ignition-gazebo:
-    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@main
+    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v1
     with:
       docker_file: gazebo/Dockerfile
       docker_image: devops/ignition-gazebo
       github_ref: ${{ github.ref }}
       public: true
       public_image: ce/ignition-gazebo
+      deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
+      version: ${GITHUB_REF##*/}
+      push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
+      snyk_check: true
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}
       registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      pub_registry_user: ${{ secrets.PORTUS_APP_USER }}
+      pub_registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      snyk_token: ${{ secrets.SNYK_TOKEN }}
