@@ -18,7 +18,7 @@ on:
     types: [released]
 jobs:
   ignition-gazebo:
-    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v1
+    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v2
     with:
       docker_file: gazebo/Dockerfile
       docker_image: devops/ignition-gazebo
