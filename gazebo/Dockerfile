@@ -19,6 +19,9 @@ COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 ### Install ignition-fortress
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null  && \
+    echo "Package: *" >> /etc/apt/preferences.d/ros-gazebo && \
+    echo "Pin: origin packages.osrfoundation.org" >> /etc/apt/preferences.d/ros-gazebo && \
+    echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
     apt-get update && \
     apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
     apt-get clean && \
