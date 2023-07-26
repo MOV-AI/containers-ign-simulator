@@ -27,6 +27,7 @@ jobs:
       deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
       push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
       snyk_check: true
+      platforms: linux/amd64, linux/arm/v7, linux/arm64
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}
       registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
