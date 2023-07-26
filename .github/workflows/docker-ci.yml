@@ -22,11 +22,9 @@ jobs:
     with:
       docker_file: gazebo/Dockerfile
       docker_image: devops/ignition-gazebo
-      github_ref: ${{ github.ref }}
       public: true
       public_image: ce/ignition-gazebo
       deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
-      version: ${GITHUB_REF##*/}
       push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
       snyk_check: true
     secrets:
@@ -34,4 +32,6 @@ jobs:
       registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
       pub_registry_user: ${{ secrets.PORTUS_APP_USER }}
       pub_registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      github_registry_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
+      github_registry_password: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}
       snyk_token: ${{ secrets.SNYK_TOKEN }}
