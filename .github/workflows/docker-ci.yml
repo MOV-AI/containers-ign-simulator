@@ -25,6 +25,7 @@ jobs:
       public: true
       public_image: ce/ignition-gazebo
       deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
+      version: ${GITHUB_REF##*/}
       push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
       snyk_check: true
       platforms: linux/amd64, linux/arm64
