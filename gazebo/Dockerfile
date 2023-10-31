@@ -1,5 +1,5 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
-FROM ${DOCKER_REGISTRY}/ce/movai-base-focal:v2.4.3
+FROM ${DOCKER_REGISTRY}/ce/movai-base-focal:v2.4.4
 # This Dockerfile is used to build the ignition
 
 ### Args
