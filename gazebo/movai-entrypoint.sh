@@ -19,8 +19,11 @@ set -e
 printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
-export PYTHONPATH=${APP_PATH}:${MOVAI_HOME}/sdk:${PYTHONPATH}
+
+simulator &
 
 # if commands passed
 [ $# -gt 0 ] && exec "$@"
 # else
+
+tail /dev/null

@@ -1,5 +1,17 @@
+FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
+
+WORKDIR /tmp
+COPY build-requirements.txt ./
+COPY setup.py ./
+COPY simulator ./simulator
+COPY README.md ./
+
+RUN python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir \
+ && python3 -m pip install -r build-requirements.txt --no-cache-dir \
+ && python3 -m build .
+
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
-FROM ${DOCKER_REGISTRY}/ce/movai-base-focal:v2.4.3
+FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.3
 # This Dockerfile is used to build the ignition
 
 ### Args
@@ -11,10 +23,13 @@ ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
 
 ENV MOVAI_ENV="release"
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV PYTHON_VERSION=3
+ENV APP_NAME="simulator"
+ENV PORT=8081
 
-# Copy runtime scripts
-COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+EXPOSE $PORT
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ### Install ignition-fortress
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
@@ -29,6 +44,18 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
     mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
+
+# Copy runtime scripts
+COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+
+# Deploy application code inside the container
+COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
+
+RUN python3 -m pip install --no-cache-dir \
+    --index-url="$PIP_PACKAGE_REPO" \
+    --extra-index-url https://pypi.org/simple \
+    /tmp_packages/*.whl && \
+    rm -rf /tmp_packages/ 
 
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
