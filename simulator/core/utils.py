@@ -1,3 +1,5 @@
+import os
+import sys
 import logging
 
 class StdoutLogger(logging.Logger):
