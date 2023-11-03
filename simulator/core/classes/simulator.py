@@ -18,7 +18,14 @@ class Simulator:
         # map the /health URL to the handle function
         self.app.router.add_get('/health', self.handle)
 
-    async def handle(self, request):
+    async def handle(self, request: aiohttp.web.Request):
+        """Handles GET requests inside the container.
+
+        Args:
+            request: GET request.
+
+        """
+
         # make sure the query is a get with no params
         if request.method != "GET" or len(request.query.keys()) > 0:
             return aiohttp.web.Response(status=405)
@@ -51,7 +58,7 @@ class Simulator:
         """Check that a given ign topic is being published inside the container.
 
         Args:
-            topic: Topics string (separated by \n).
+            topic: Topic string.
 
         """
 
@@ -70,6 +77,7 @@ class Simulator:
         return result.returncode
 
     def run(self):
+        """Run the simulator web server."""
 
         self._logger.info("starting http server locally")
         
