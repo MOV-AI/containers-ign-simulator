@@ -6,7 +6,7 @@ from simulator.core.utils import StdoutLogger
 
 class Simulator:
     def __init__(self):
-        self._logger = StdoutLogger("monitoring.mov.ai")
+        self._logger = StdoutLogger("simulator.mov.ai")
         self._logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 
         self._logger.info("initializing simulator instance")
