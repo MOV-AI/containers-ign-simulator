@@ -31,28 +31,18 @@ class Simulator:
             return aiohttp.web.Response(status=405)
         
         # Run communication smoke tests
-
         # Test that Ignition is running (/clock, /stats)
-        for topic in ["/clock","/stats"]:
-            exitcode = self.ign_topic_is_published(topic)
-            if exitcode != 0: return aiohttp.web.json_response(exitcode) 
-
         # Test that the world is loaded correctly (/world/empty/clock, /world/empty/stats)
-        for topic in ["/world/empty/clock","/world/empty/stats"]:
+        # Test spawner to sim communication through topic /test
+        for topic in ["/clock","/stats","/world/empty/clock","/world/empty/stats","/test"]:
             exitcode = self.ign_topic_is_published(topic)
-            if exitcode != 0: return aiohttp.web.json_response(exitcode) 
+            if exitcode == 124:
+                self._logger.info(f"The topic '{topic}' is not published")
+                return aiohttp.web.Response(text=f"The topic {topic} is not published\n", content_type='text/plain')
+            if exitcode != 0: 
+                return aiohttp.web.Response(status=exitcode) 
 
-        # Test sim to spawner communication (/clock, /stats, /world/empty/clock, /world/empty/stats)
-        # to do in spawner
-        # "ign topic -e -n 1 -t {topic}
-
-        # Test spawner to sim communication
-        # to do in spawner: "ign topic -p "data:\"test\"" -t /test --msgtype ignition.msgs.StringMsg"
-        exitcode = self.ign_topic_is_published("/test")
-        if exitcode != 0: return aiohttp.web.json_response(exitcode) 
-
-        return aiohttp.web.json_response(200) 
-        # return aiohttp.web.Response(status=ok_code)  
+        return aiohttp.web.Response(status=200)  
 
     def ign_topic_is_published(self, topic: str):
         """Check that a given ign topic is being published inside the container.
