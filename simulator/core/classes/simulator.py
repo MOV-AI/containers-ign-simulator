@@ -18,7 +18,7 @@ class Simulator:
         # map the /health URL to the handle function
         self.app.router.add_get('/health', self.handle)
 
-    async def handle(self, request: aiohttp.web.Request):
+    def handle(self, request: aiohttp.web.Request):
         """Handles GET requests inside the container.
 
         Args:
