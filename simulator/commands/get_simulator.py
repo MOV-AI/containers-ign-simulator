@@ -42,25 +42,15 @@ class GetSimulatorStatus(ICommand):
 
         # Test spawner to sim communication through topic /test (spawner must be publishing this topic)
         topic = "/test"
-        exitcode = self.ign_topic_is_published(topic)
-        if exitcode == 124:
-            logging.info(f"[exitcode = {exitcode}] The topic '{topic}' is not published")
-            return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
-        if exitcode != 0:
-            logging.info(f"[exitcode = {exitcode}] Failed to get simulator status on topic {topic}")
-            return f"[exitcode = {exitcode}] Failed to get simulator status\n"
+        result = self.ign_topic_is_published(topic)
+        if result != 0: return result
         
         logging.info(f"Communication from spawner to simulator verified")
 
         # Test that Ignition is running (/clock, /stats)
         for topic in ["/clock","/stats"]:
-            exitcode = self.ign_topic_is_published(topic)
-            if exitcode == 124:
-                logging.info(f"[exitcode = {exitcode}] The topic '{topic}' is not published")
-                return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
-            if exitcode != 0:
-                logging.info(f"[exitcode = {exitcode}] Failed to get simulator status on topic {topic}")
-                return f"[exitcode = {exitcode}] Failed to get simulator status\n"
+            result = self.ign_topic_is_published(topic)
+            if result != 0: return result
             
         logging.info(f"Ignition simulation is running")
             
@@ -70,21 +60,17 @@ class GetSimulatorStatus(ICommand):
 
         if len(topic_names) == 0: 
             logging.info(f"No world is loaded in simulation")
-            return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
+            return f"[exitcode = 124] The topic {topic} is not published\n"
 
         for topic in topic_names:
-            exitcode = self.ign_topic_is_published(topic)
-            if exitcode == 124:
-                logging.info(f"[exitcode = {exitcode}] The topic '{topic}' is not published")
-                return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
-            if exitcode != 0:
-                logging.info(f"[exitcode = {exitcode}] Failed to get simulator status on topic {topic}")
-                return f"[exitcode = {exitcode}] Failed to get simulator status\n"
+            result = self.ign_topic_is_published(topic)
+            if result != 0: return result
+            
             
         logging.info(f"Ignition World is properly loaded.")
         
 
-        return f"[exitcode = {exitcode}] Communication with simulator is healthy\n"
+        return f"[exitcode = {result}] Communication with simulator is healthy\n"
     
     def ign_topic_exists(self, topic_pattern: str):
         
@@ -116,10 +102,10 @@ class GetSimulatorStatus(ICommand):
         cmd = f"ign topic -e -n 1 -t {topic}"
         exitcode, _ = simulator.utils.utils.subprocess_timeout_compliant(cmd)
         if exitcode == 124:
-            logging.info(f"The command '{cmd}' timed out")
-            return exitcode
+            logging.info(f"[exitcode = {exitcode}] The command '{cmd}' timed out. The topic '{topic}' is not published")
+            return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
         if exitcode != 0:
-            logging.info(f"The command '{cmd}' returned a non-zero exit status")
-            return exitcode
+            logging.info(f"[exitcode = {exitcode}] The command '{cmd}' returned a non-zero exit status. Failed to get simulator status on topic {topic}")
+            return f"[exitcode = {exitcode}] Failed to get simulator status\n"
         
         return exitcode
