@@ -20,7 +20,7 @@ printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 
-simulator &
+python3 /usr/local/bin/entrypoint.py &
 
 # if commands passed
 [ $# -gt 0 ] && exec "$@"

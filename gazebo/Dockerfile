@@ -1,16 +1,3 @@
-FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
-
-WORKDIR /tmp
-COPY build-requirements.txt ./
-COPY setup.py ./
-COPY simulator ./simulator
-COPY README.md ./
-
-RUN python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir \
- && python3 -m pip install -r build-requirements.txt --no-cache-dir \
- && python3 -m build .
-
-ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.3
 # This Dockerfile is used to build the ignition
 
@@ -24,9 +11,9 @@ ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
 ENV MOVAI_ENV="release"
 
 ENV PYTHON_VERSION=3
-ENV APP_NAME="simulator"
 ENV PORT=8081
 
+## Expose web server port
 EXPOSE $PORT
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -45,21 +32,25 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
 
-# Copy runtime scripts
-COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
-
-# Deploy application code inside the container
-COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
-
-RUN python3 -m pip install --no-cache-dir \
-    --index-url="$PIP_PACKAGE_REPO" \
-    --extra-index-url https://pypi.org/simple \
-    /tmp_packages/*.whl && \
-    rm -rf /tmp_packages/ 
-
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
 ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
+
+# Copy runtime scripts
+COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
+COPY ./resources /usr/local/share/pypi-confs/resources
+
+### Add experimental repositories to pip
+RUN setup-pypi-env.sh DEV
+
+# Copy web server code inside the container
+COPY ./entrypoint.py /usr/local/bin/entrypoint.py
+COPY requirements.txt /usr/local/bin/requirements.txt
+COPY simulator /usr/local/bin/simulator
+
+# Install requirements
+RUN python3 -m pip install -r /usr/local/bin/requirements.txt  

@@ -1,2 +1,6 @@
 # requirements for the execution of tests and packaging. Not runtime requirements.
-build>=0.10.0
+flask==2.1.2
+requests
+werkzeug==2.0
+LambdaCore==1.0.0.8
+psutil
