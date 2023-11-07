@@ -81,7 +81,8 @@ class GetSimulatorStatus(ICommand):
         """
 
         cmd = f"ign topic -l | grep {topic_pattern}"
-        exitcode, result = simulator.utils.utils.subprocess_timeout_compliant(cmd, timeout = None)
+        timeout_flag, exitcode, result = simulator.utils.utils.subprocess_timeout_compliant(cmd, timeout = None)
+        assert timeout_flag == False
         if exitcode != 0:
             logging.info(f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}")
             return []
@@ -100,10 +101,10 @@ class GetSimulatorStatus(ICommand):
         """
 
         cmd = f"ign topic -e -n 1 -t {topic}"
-        exitcode, _ = simulator.utils.utils.subprocess_timeout_compliant(cmd)
-        if exitcode == 124:
-            logging.info(f"[exitcode = {exitcode}] The command '{cmd}' timed out. The topic '{topic}' is not published")
-            return f"[exitcode = {exitcode}] The topic {topic} is not published\n"
+        timeout_flag, exitcode, _ = simulator.utils.utils.subprocess_timeout_compliant(cmd)
+        if timeout_flag:
+            logging.info(f"[timeout = {timeout_flag}] The command '{cmd}' timed out. The topic '{topic}' is not published")
+            return f"[timeout = {timeout_flag}] The topic {topic} is not published\n"
         if exitcode != 0:
             logging.info(f"[exitcode = {exitcode}] The command '{cmd}' returned a non-zero exit status. Failed to get simulator status on topic {topic}")
             return f"[exitcode = {exitcode}] Failed to get simulator status\n"

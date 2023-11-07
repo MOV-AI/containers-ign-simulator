@@ -27,9 +27,9 @@ def subprocess_timeout_compliant(cmd, timeout = 1):
         if e.stderr:
             logging.info(f"{e.stderr.decode().strip()}\n")
 
-        return 124, None
+        return True, None, None
     
-    return exitcode, result
+    return False, exitcode, result
         
 
 
