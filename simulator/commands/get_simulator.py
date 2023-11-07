@@ -1,7 +1,6 @@
 """Module that provides the Service command GetSimulatorStatus. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
 
 import requests
-import subprocess
 from LambdaCore.ICommand import ICommand
 from LambdaCore.utils.exception import UnsupportedCommand
 
@@ -16,7 +15,7 @@ class GetSimulatorStatus(ICommand):
         logging.info("Get Simulator Status command reached")
 
 
-        output = self.handle_get()
+        output = GetSimulatorStatus.handle_get()
 
         response = requests.Response()
         response._content = output  
@@ -35,42 +34,44 @@ class GetSimulatorStatus(ICommand):
         }
         return description
 
-    def handle_get(self):
+    @staticmethod
+    def handle_get():
         """Handles GET requests inside the container."""
         
         # Run communication smoke tests
 
         # Test spawner to sim communication through topic /test (spawner must be publishing this topic)
         topic = "/test"
-        result = self.ign_topic_is_published(topic)
+        result = GetSimulatorStatus.ign_topic_is_published(topic)
         if result != 0: return result
         
         logging.info(f"Communication from spawner to simulator verified")
 
         # Test that Ignition is running (/clock, /stats)
         for topic in ["/clock","/stats"]:
-            result = self.ign_topic_is_published(topic)
+            result = GetSimulatorStatus.ign_topic_is_published(topic)
             if result != 0: return result
             
         logging.info(f"Ignition simulation is running")
             
         # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
         world_topics = "'world.*clock\|world.*stats'"
-        topic_names = self.ign_topic_exists(world_topics)
+        topic_names = GetSimulatorStatus.ign_topic_exists(world_topics)
 
         if len(topic_names) == 0: 
             logging.info(f"No world is loaded in simulation")
             return f"[exitcode = 124] The topic {topic} is not published\n"
 
         for topic in topic_names:
-            result = self.ign_topic_is_published(topic)
+            result = GetSimulatorStatus.ign_topic_is_published(topic)
             if result != 0: return result
                 
         logging.info(f"Ignition World is properly loaded.")
 
         return f"[exitcode = {result}] Communication with simulator is healthy\n"
     
-    def ign_topic_exists(self, topic_pattern: str):
+    @staticmethod
+    def ign_topic_exists(topic_pattern: str):
         
         """Check that a given ign topic is listed inside the container.
 
@@ -89,7 +90,8 @@ class GetSimulatorStatus(ICommand):
 
         return output
 
-    def ign_topic_is_published(self, topic: str):
+    @staticmethod
+    def ign_topic_is_published(topic: str):
         """Check that a given ign topic is being published inside the container.
 
         Args:
