@@ -3,4 +3,3 @@ flask==2.1.2
 requests
 werkzeug==2.0
 LambdaCore==1.0.0.8
-psutil

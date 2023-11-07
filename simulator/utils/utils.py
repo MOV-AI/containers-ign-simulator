@@ -1,5 +1,4 @@
 import subprocess
-import psutil
 import simulator.utils.logger as logging
 
 def subprocess_timeout_compliant(cmd, timeout = 1):

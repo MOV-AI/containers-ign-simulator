@@ -65,10 +65,8 @@ class GetSimulatorStatus(ICommand):
         for topic in topic_names:
             result = self.ign_topic_is_published(topic)
             if result != 0: return result
-            
-            
+                
         logging.info(f"Ignition World is properly loaded.")
-        
 
         return f"[exitcode = {result}] Communication with simulator is healthy\n"
     
@@ -82,7 +80,7 @@ class GetSimulatorStatus(ICommand):
         """
 
         cmd = f"ign topic -l | grep {topic_pattern}"
-        exitcode, result = simulator.utils.utils.subprocess_timeout_compliant(cmd, timeout = 5)
+        exitcode, result = simulator.utils.utils.subprocess_timeout_compliant(cmd, timeout = None)
         if exitcode != 0:
             logging.info(f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}")
             return []
