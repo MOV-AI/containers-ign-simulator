@@ -10,7 +10,7 @@ import simulator.utils.utils
 class GetSimulatorStatus(ICommand):
     """Service Command to retrieve the status of communication with simulator"""
 
-    def get_execute(self, _url_params):
+    def get_execute_v1(self, _url_params):
 
         logging.info("Get Simulator Status command reached")
 

@@ -19,16 +19,16 @@ def discovery():
     CommandFactorySingleton.discover_commands(__file__)
 
 
-@commands.route("/<get_method>", methods=["GET"])
-def get_call(get_method):
+@commands.route("/api/<version>/<get_method>", methods=["GET"])
+def get_call(version, get_method):
     """Forward the http get calls to the lambda core handler to take advantage of the framework functionalities"""
-    return handler_get(get_method, request)
+    return handler_get(get_method, request, version)
 
 
-@commands.route("/<post_method>", methods=["POST"])
+@commands.route("/api/<version>/<post_method>", methods=["POST"])
 def post_call(post_method):
     """Forward the http post calls to the lambda core handler to take advantage of the framework functionalities"""
-    return handler_post(post_method, request)
+    return handler_post(post_method, request, version)
 
 
 # Test function.
