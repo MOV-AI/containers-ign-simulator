@@ -23,6 +23,10 @@ def subprocess_timeout_compliant(cmd, timeout = None):
 
         return True, None, None
     
+    except subprocess.CalledProcessError as e:
+
+        return False, e.returncode, e.stdout
+    
     return False, exitcode, result
         
 
