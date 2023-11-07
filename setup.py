@@ -8,7 +8,7 @@ requirements = [
 ]
 
 setuptools.setup(
-    name="simulator",
+    name="simulator_api",
     version="0.0.1-1",
     author="Devops team",
     author_email="devops@mov.ai",
@@ -21,5 +21,5 @@ setuptools.setup(
     classifiers=["Programming Language :: Python :: 3"],
     install_requires=requirements,
     entry_points={
-        "console_scripts": ["simulator = simulator.entrypoint:run"]},
+        "console_scripts": ["simulator_api = simulator_api.entrypoint:run"]},
 )

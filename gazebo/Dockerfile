@@ -3,7 +3,7 @@ FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
 WORKDIR /tmp
 COPY build-requirements.txt ./
 COPY setup.py ./
-COPY simulator ./simulator
+COPY simulator_api ./simulator_api
 COPY README.md ./
 
 RUN python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir \

@@ -26,7 +26,7 @@ def get_call(version, get_method):
 
 
 @commands.route("/api/<version>/<post_method>", methods=["POST"])
-def post_call(post_method):
+def post_call(version, post_method):
     """Forward the http post calls to the lambda core handler to take advantage of the framework functionalities"""
     return handler_post(post_method, request, version)
 

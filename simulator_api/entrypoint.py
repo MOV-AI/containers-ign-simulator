@@ -3,7 +3,7 @@ import ssl as ssl_lib
 import certifi
 from flask import Flask
 
-from simulator.rest_server.exposed_methods import commands
+from simulator_api.rest_server.exposed_methods import commands
 
 def run():
     # starts logging
