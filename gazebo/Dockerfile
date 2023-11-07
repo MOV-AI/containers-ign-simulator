@@ -1,3 +1,15 @@
+FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
+
+WORKDIR /tmp
+COPY build-requirements.txt ./
+COPY setup.py ./
+COPY simulator ./simulator
+COPY README.md ./
+
+RUN python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir \
+ && python3 -m pip install -r build-requirements.txt --no-cache-dir \
+ && python3 -m build .
+
 FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.3
 # This Dockerfile is used to build the ignition
 
@@ -47,10 +59,13 @@ COPY ./resources /usr/local/share/pypi-confs/resources
 ### Add experimental repositories to pip
 RUN setup-pypi-env.sh DEV
 
-# Copy web server code inside the container
-COPY ./entrypoint.py /usr/local/bin/entrypoint.py
-COPY requirements.txt /usr/local/bin/requirements.txt
-COPY simulator /usr/local/bin/simulator
+# Deploy application code inside the container
+COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
+COPY ./requirements.txt /tmp/requirements.txt
 
-# Install requirements
-RUN python3 -m pip install -r /usr/local/bin/requirements.txt  
+RUN python3 -m pip install -r /tmp/requirements.txt && \
+    python3 -m pip install --no-cache-dir \
+    --index-url="$PIP_PACKAGE_REPO" \
+    --extra-index-url https://pypi.org/simple \
+    /tmp_packages/*.whl && \
+    rm -rf /tmp_packages/  /tmp/
