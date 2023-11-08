@@ -24,6 +24,11 @@ def get_call(version, get_method):
     """Forward the http get calls to the lambda core handler to take advantage of the framework functionalities"""
     return handler_get(get_method, request, version)
 
+@commands.route("/api/<get_method>", methods=["GET"])
+def get_call_no_version(get_method):
+    """Forward the http get calls to the lambda core handler to take advantage of the framework functionalities"""
+    return handler_get(get_method, request)
+
 
 @commands.route("/api/<version>/<post_method>", methods=["POST"])
 def post_call(version, post_method):

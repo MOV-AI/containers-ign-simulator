@@ -18,9 +18,8 @@ class GetSimulatorStatus(ICommand):
         # initialize command status
         self.status = 'OK'
 
-        # initialize ignition process objrct
-        self.ignition_process = None
-
+    def get_execute_latest(self, _url_params):
+        return self.get_execute_v1(_url_params)
 
     def get_execute_v1(self, _url_params):
 
