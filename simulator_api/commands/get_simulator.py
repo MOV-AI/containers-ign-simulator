@@ -1,9 +1,7 @@
 """Module that provides the Service command GetSimulatorStatus. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
 
 import os
-import time
 import requests
-import threading
 from LambdaCore.ICommand import ICommand
 from LambdaCore.utils.exception import UnsupportedCommand
 
