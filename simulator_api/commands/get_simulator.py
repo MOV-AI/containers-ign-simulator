@@ -20,6 +20,9 @@ class GetSimulatorStatus(ICommand):
         # initialize command status
         self.status = 'OK'
 
+        # initialize ignition process objrct
+        self.ignition_process = None
+
 
     def get_execute_v1(self, _url_params):
 
@@ -67,7 +70,7 @@ class GetSimulatorStatus(ICommand):
             logging.info(message)
             # launch ignition in thread
             ign_file = "/tmp/ign_output.logs"
-            ign_thread = threading.Thread(target=GetSimulatorStatus.start_ign_thread, args=(ign_file,))
+            ign_thread = threading.Thread(target=self.start_ign_thread, args=(ign_file,))
             ign_thread.start()
 
             # verify ignition is fully started
@@ -92,19 +95,21 @@ class GetSimulatorStatus(ICommand):
             _ = self.container_exec_cmd(cmd, save_task_name = f"world_running{topic.replace('/','_')}_check", timeout = 1)            
 
         # if launched ignition stop it
-        if (timeout_flag or exitcode != 0) and ign_thread.is_alive():
+        if (timeout_flag or exitcode != 0):
+            logging.info(self.ignition_process.pid)
+            # Kill process
+            self.ignition_process.terminate()
             # Terminate the thread
-            ign_thread.join()
+            if ign_thread.is_alive(): ign_thread.join()
             # Delete the temporary file
             if os.path.exists(ign_file): os.remove(ign_file)
 
         return {'status' : self.status, 'checklist' : self.check_list}
     
-    @staticmethod
-    def start_ign_thread(filename):
-        cmd = "ign gazebo -s empty.sdf -v &"
+    def start_ign_thread(self, filename):
+        cmd = "ign gazebo -s empty.sdf -v"
         with open(filename, "w+") as output_file:
-            simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
+            self.ignition_process = simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
     
     def container_exec_cmd(self, cmd, save_task_name = None, timeout = None):
 

@@ -35,14 +35,13 @@ def subprocess_redirecting_stdout(cmd, file):
         # Compliant: makes sure to terminate the child process when
         # the timeout expires.
 
-        subprocess.run(
-                        cmd,
-                        shell=True,
-                        executable="/bin/bash",
-                        check=True,
-                        stdout=file,
-                        stderr=file
-                      )
+        proc = subprocess.Popen(
+                                cmd,
+                                shell=True,
+                                executable="/bin/bash",
+                                stdout=file,
+                                stderr=file
+                            )
         
         logging.info(f"The command '{cmd}' ran succesfully.")
 
@@ -56,6 +55,8 @@ def subprocess_redirecting_stdout(cmd, file):
 
         if e.stdout : logging.info(f"stdout: {e.stdout.decode().strip()}")
         if e.stderr: logging.info(f"stderr: {e.stdout.decode().strip()}")
+    
+    return proc
         
 
 
