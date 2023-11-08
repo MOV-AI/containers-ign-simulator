@@ -57,15 +57,11 @@ COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
 
 ### Add experimental repositories to pip
-RUN setup-pypi-env.sh DEV
+RUN setup-pypi-env.sh INT
 
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
-COPY ./requirements.txt /tmp/requirements.txt
 
-RUN python3 -m pip install -r /tmp/requirements.txt && \
-    python3 -m pip install --no-cache-dir \
-    --index-url="$PIP_PACKAGE_REPO" \
-    --extra-index-url https://pypi.org/simple \
+RUN python3 -m pip install --no-cache-dir \
     /tmp_packages/*.whl && \
-    rm -rf /tmp_packages/  /tmp/
+    rm -rf /tmp_packages/ 

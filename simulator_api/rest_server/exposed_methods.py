@@ -1,10 +1,10 @@
-"""Module required by all lambda functions that take advantage of the lambda core functionalities."""
+"""Module required by all WebServer functions that take advantage of the WebServer core functionalities."""
 
 import json
 
 from flask import Blueprint, request
-from LambdaCore.command_factory import CommandFactorySingleton
-from LambdaCore.handler import handler_get, handler_post
+from WebServerCore.command_factory import CommandFactorySingleton
+from WebServerCore.handler import handler_get, handler_post
 
 # The handler functions below expose the endpoints.
 # They are necessary for the application to work, in this case, with the Flask framework.
@@ -21,18 +21,18 @@ def discovery():
 
 @commands.route("/api/<version>/<get_method>", methods=["GET"])
 def get_call(version, get_method):
-    """Forward the http get calls to the lambda core handler to take advantage of the framework functionalities"""
+    """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_get(get_method, request, version)
 
 @commands.route("/api/<get_method>", methods=["GET"])
 def get_call_no_version(get_method):
-    """Forward the http get calls to the lambda core handler to take advantage of the framework functionalities"""
+    """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_get(get_method, request)
 
 
 @commands.route("/api/<version>/<post_method>", methods=["POST"])
 def post_call(version, post_method):
-    """Forward the http post calls to the lambda core handler to take advantage of the framework functionalities"""
+    """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_post(post_method, request, version)
 
 

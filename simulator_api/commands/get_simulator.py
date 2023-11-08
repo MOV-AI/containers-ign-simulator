@@ -2,8 +2,8 @@
 
 import os
 import requests
-from LambdaCore.ICommand import ICommand
-from LambdaCore.utils.exception import UnsupportedCommand
+from WebServerCore.ICommand import ICommand
+from WebServerCore.utils.exception import UnsupportedCommand
 
 import simulator_api.utils.logger as logging
 import simulator_api.utils.utils

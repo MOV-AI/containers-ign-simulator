@@ -1,5 +1,0 @@
-# requirements for the execution of tests and packaging. Not runtime requirements.
-flask==2.1.2
-requests
-werkzeug==2.0
-LambdaCore==1.0.0.11

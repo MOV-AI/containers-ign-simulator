@@ -4,7 +4,10 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 requirements = [
-    "aiohttp==3.8.6"
+    "flask==2.1.2", 
+    "requests", 
+    "werkzeug==2.0", 
+    "webservercore==1.1.0.1"
 ]
 
 setuptools.setup(
