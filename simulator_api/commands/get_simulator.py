@@ -1,6 +1,9 @@
 """Module that provides the Service command GetSimulatorStatus. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
 
+import os
+import time
 import requests
+import threading
 from LambdaCore.ICommand import ICommand
 from LambdaCore.utils.exception import UnsupportedCommand
 
@@ -10,8 +13,11 @@ import simulator_api.utils.utils
 class GetSimulatorStatus(ICommand):
     """Service Command to retrieve the status of communication with simulator"""
     def __init__(self):
+
         # initialize check list
         self.check_list = []
+
+        # initialize command status
         self.status = 'OK'
 
 
@@ -52,14 +58,30 @@ class GetSimulatorStatus(ICommand):
         cmd = f"ign topic -e -n 1 -t /test_from_spawner"
         _ = self.container_exec_cmd(cmd, save_task_name = "spawner_to_simulator_communication", timeout = 5)
 
-        # Verify if ignition is launched and if not launch it
+        # Verify if ignition is launched and if not launch it with world empty
+        ign_command='pgrep -f "ign gazebo"'
+        timeout_flag, exitcode, result = simulator_api.utils.utils.subprocess_timeout_compliant(ign_command)
+        # if ignition is not running
+        if timeout_flag or exitcode != 0:
+            message = f"Ignition is not running."
+            logging.info(message)
+            # launch ignition in thread
+            ign_file = "/tmp/ign_output.logs"
+            ign_thread = threading.Thread(target=GetSimulatorStatus.start_ign_thread, args=(ign_file,))
+            ign_thread.start()
+
+            # verify ignition is fully started
+            log_to_wait_for = "Ignition"
+            while not os.path.exists(ign_file): continue
+            with open(ign_file, "r") as file:
+                line = file.readline()
+                while not log_to_wait_for in line: line = file.readline()
+                logging.info(f"Ignition is running.")
 
         # Test that Ignition is running correctly (/clock, /stats)
         for topic in ["/clock","/stats"]:
             cmd = f"ign topic -e -n 1 -t {topic}"
             _ = self.container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)            
-
-        # Verify if world.sdf is launched and if not launch it
             
         # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
         cmd = f"ign topic -l | grep 'world.*clock\|world.*stats'"
@@ -69,20 +91,30 @@ class GetSimulatorStatus(ICommand):
             cmd = f"ign topic -e -n 1 -t {topic}"
             _ = self.container_exec_cmd(cmd, save_task_name = f"world_running{topic.replace('/','_')}_check", timeout = 1)            
 
-        # if launched ignition kill it
-        # if launched world kill it
+        # if launched ignition stop it
+        if (timeout_flag or exitcode != 0) and ign_thread.is_alive():
+            # Terminate the thread
+            ign_thread.join()
+            # Delete the temporary file
+            if os.path.exists(ign_file): os.remove(ign_file)
 
         return {'status' : self.status, 'checklist' : self.check_list}
+    
+    @staticmethod
+    def start_ign_thread(filename):
+        cmd = "ign gazebo -s empty.sdf -v &"
+        with open(filename, "w+") as output_file:
+            simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
     
     def container_exec_cmd(self, cmd, save_task_name = None, timeout = None):
 
         timeout_flag, exitcode, result = simulator_api.utils.utils.subprocess_timeout_compliant(cmd, timeout = timeout)
         if timeout_flag:
-            self.status = 'NOK'
+            if not(save_task_name is None): self.status = 'NOK'
             message = f"The command '{cmd}' timed out. Output: {result}."
             logging.info(message)
         elif exitcode != 0:
-            self.status = 'NOK'
+            if not(save_task_name is None): self.status = 'NOK'
             message = f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}."
             logging.info(message)
         else:
