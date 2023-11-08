@@ -70,8 +70,9 @@ class GetSimulatorStatus(ICommand):
             logging.info(message)
             # launch ignition in thread
             ign_file = "/tmp/ign_output.logs"
-            ign_thread = threading.Thread(target=self.start_ign_thread, args=(ign_file,))
-            ign_thread.start()
+            cmd = "ign gazebo -s empty.sdf -v"
+            with open(ign_file, "w+") as output_file:
+                ignition_process = simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
 
             # verify ignition is fully started
             log_to_wait_for = "Ignition"
@@ -96,20 +97,12 @@ class GetSimulatorStatus(ICommand):
 
         # if launched ignition stop it
         if (timeout_flag or exitcode != 0):
-            logging.info(self.ignition_process.pid)
             # Kill process
-            self.ignition_process.terminate()
-            # Terminate the thread
-            if ign_thread.is_alive(): ign_thread.join()
+            ignition_process.terminate()
             # Delete the temporary file
             if os.path.exists(ign_file): os.remove(ign_file)
 
         return {'status' : self.status, 'checklist' : self.check_list}
-    
-    def start_ign_thread(self, filename):
-        cmd = "ign gazebo -s empty.sdf -v"
-        with open(filename, "w+") as output_file:
-            self.ignition_process = simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
     
     def container_exec_cmd(self, cmd, save_task_name = None, timeout = None):
 
