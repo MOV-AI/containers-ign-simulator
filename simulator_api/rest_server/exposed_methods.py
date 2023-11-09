@@ -29,11 +29,26 @@ def get_call_no_version(get_method):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_get(get_method, request)
 
+@commands.route("/api/<version>/<get_method>/<task_id>", methods=["GET"])
+def get_status_call(version, get_method, task_id):
+    """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
+    return handler_get(get_method, request, version, task_id)
+
+@commands.route("/api/<get_method>/<task_id>", methods=["GET"])
+def get_status_call_no_version(get_method, task_id):
+    """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
+    return handler_get(get_method, request, task_id=task_id)
+
 
 @commands.route("/api/<version>/<post_method>", methods=["POST"])
 def post_call(version, post_method):
     """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_post(post_method, request, version)
+
+@commands.route("/api/<post_method>", methods=["POST"])
+def post_call_no_version(post_method):
+    """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
+    return handler_post(post_method, request)
 
 
 # Test function.

@@ -1,5 +1,11 @@
 FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
 
+COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
+COPY ./resources /usr/local/share/pypi-confs/resources
+
+### Add experimental repositories to pip
+RUN /usr/local/bin/setup-pypi-env.sh DEV
+
 WORKDIR /tmp
 COPY build-requirements.txt ./
 COPY setup.py ./
@@ -53,15 +59,19 @@ ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
 # Copy runtime scripts
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
 COPY ./resources /usr/local/share/pypi-confs/resources
 
 ### Add experimental repositories to pip
-RUN setup-pypi-env.sh INT
+RUN /usr/local/bin/setup-pypi-env.sh INT
+
+## Install messaging broker for async calls
+RUN apt-get install rabbitmq-server
 
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
 
-RUN python3 -m pip install --no-cache-dir \
+RUN python3 -m pip install --no-cache-dir --user \
     /tmp_packages/*.whl && \
     rm -rf /tmp_packages/ 

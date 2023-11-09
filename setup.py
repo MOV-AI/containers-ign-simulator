@@ -7,7 +7,8 @@ requirements = [
     "flask==2.1.2", 
     "requests", 
     "werkzeug==2.0", 
-    "webservercore==1.1.0.1"
+    "webservercore==1.1.0.1",
+    "celery"
 ]
 
 setuptools.setup(
