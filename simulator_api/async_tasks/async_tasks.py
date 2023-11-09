@@ -6,9 +6,12 @@ import simulator_api.utils.logger as logging
 
 celery = Celery(
     'entrypoint',
-    broker='pyamqp://guest:guest@localhost//',
-    backend='rpc://'
+    broker='pyamqp://guest:guest@localhost:5672//',
+    backend='rpc://',
+
 )
+celery.conf.worker_redirect_stdouts = False
+celery.conf.worker_hijack_root_logger = False
 
 def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
