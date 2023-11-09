@@ -1,11 +1,10 @@
-"""Module that provides the Service command GetSimulatorStatus. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
+"""Module that provides the Service command communication-test. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
 
 import requests
 from WebServerCore.ICommand import ICommand
-from WebServerCore.utils.exception import UnsupportedCommand
 
 import simulator_api.utils.logger as logging
-from simulator_api.async_tasks.async_tasks import handle_get
+from simulator_api.async_tasks.async_tasks import communication_test
 
 class communicationtest(ICommand):
     """Service Command to retrieve the status of communication with simulator"""
@@ -17,7 +16,7 @@ class communicationtest(ICommand):
 
         logging.info("Get Simulator Status command reached")
 
-        task = handle_get.AsyncResult(task_id)
+        task = communication_test.AsyncResult(task_id)
     
         if task.state == 'PENDING': message = {'status': 'Task is pending','result': task.info}
         elif task.state != 'FAILURE': message = {'status': 'Task is in progress','result': task.info}  # Include any additional info you want
@@ -30,12 +29,12 @@ class communicationtest(ICommand):
         return response
     
     def post_execute_latest(self, url_params, body_data):
-        raise self.post_execute_v1(url_params, body_data)
+        return self.post_execute_v1(url_params, body_data)
 
     def post_execute_v1(self, url_params, body_data):
         logging.info("Post Communication Test command reached")
 
-        task = handle_get.apply_async()
+        task = communication_test.apply_async()
 
         logging.info(task.id, task.info, task.status)
 

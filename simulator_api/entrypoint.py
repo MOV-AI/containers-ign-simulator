@@ -1,6 +1,7 @@
 import ssl as ssl_lib
 import threading
 import certifi
+import sys
 from flask import Flask
 # from celery import Celery
 import simulator_api.utils.logger as logging
@@ -16,6 +17,7 @@ def run_celery():
     celery.worker_main(['worker'])
 
 def run():
+
     # starts logging
 
     # preps to run on Flask
@@ -35,6 +37,8 @@ def run():
     # Wait for both threads to finish (if needed)
     flask_thread.join()
     celery_thread.join()
+
+    sys.exit(0)
 
 if __name__ == '__main__':
     run()

@@ -40,10 +40,17 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     return result, task_status, task_json
 
 @celery.task
-def handle_get():
-    """Handles GET requests inside the container."""
+def echo_topic(topic, timeout):
+    """Handles topic echo inside the container."""
 
-    logging.info("Entered handle function")
+    cmd = f"ign topic -e -n 1 -t {topic}"
+    _, _, task_json = container_exec_cmd(cmd, save_task_name = f"echo_{topic}", timeout = timeout)
+    
+    return task_json
+
+@celery.task
+def communication_test():
+    """Handles communication test inside the container."""
 
     # initialize check list
     check_list = []
