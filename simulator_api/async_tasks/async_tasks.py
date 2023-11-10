@@ -7,7 +7,7 @@ import simulator_api.utils.logger as logging
 celery = Celery(
     'entrypoint',
     broker='pyamqp://guest:guest@localhost:5672//',
-    backend='db+sqlite:///results.sqlite3'
+    backend='db+sqlite:////tmp/celery.sqlite3'
 )
 celery.conf.worker_hijack_root_logger = False
 
