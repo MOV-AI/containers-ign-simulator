@@ -5,7 +5,7 @@ from WebServerCore.ICommand import ICommand
 from WebServerCore.utils.exception import InvalidInputException, UnsupportedCommand
 
 import simulator_api.utils.logger as logging
-from simulator_api.async_tasks.async_tasks import container_exec_cmd
+from simulator_api.celery_tasks.celery_tasks import container_exec_cmd
 
 def publish_topic(topic, message, msgtype):
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'

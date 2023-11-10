@@ -10,6 +10,7 @@ celery = Celery(
     backend='db+sqlite:////tmp/celery.sqlite3'
 )
 celery.conf.worker_hijack_root_logger = False
+celery.conf.task_track_started = True
 
 def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
@@ -37,7 +38,7 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
     return result, task_status, task_json
 
-@celery.task
+@celery.task()
 def echo_topic(topic, timeout):
     """Handles topic echo inside the container."""
 
@@ -46,7 +47,7 @@ def echo_topic(topic, timeout):
     
     return task_json
 
-@celery.task
+@celery.task()
 def communication_test():
     """Handles communication test inside the container."""
 
@@ -63,6 +64,7 @@ def communication_test():
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "simulation_to_spawner_communication")
     if task_status != 'OK': status = task_status
     check_list.append(task_json)
+    communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
 
     # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
     # change the timeout to be input
@@ -70,6 +72,7 @@ def communication_test():
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "spawner_to_simulator_communication", timeout = 5)
     if task_status != 'OK': status = task_status
     check_list.append(task_json)
+    communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
 
     # Verify if ignition is launched and if not launch it with world empty
     # ign_command='pgrep -f "ign gazebo"'
@@ -97,7 +100,8 @@ def communication_test():
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)    
         if task_status != 'OK': status = task_status
-        check_list.append(task_json)        
+        check_list.append(task_json) 
+        communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})        
         
     # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
     # cmd = f"ign topic -l | grep 'world.*clock\|world.*stats'"
@@ -109,7 +113,8 @@ def communication_test():
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"world_running{topic.replace('/','_')}_check", timeout = 1)  
         if task_status != 'OK': status = task_status
-        check_list.append(task_json)          
+        check_list.append(task_json) 
+        communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})         
 
     # if launched ignition stop it
     # if (timeout_flag or exitcode != 0):

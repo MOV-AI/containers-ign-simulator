@@ -5,7 +5,7 @@ import sys
 from flask import Flask
 
 from simulator_api.rest_server.exposed_methods import commands
-from simulator_api.async_tasks.async_tasks import celery
+from simulator_api.celery_tasks.celery_tasks import celery
 
 def run_celery():
     celery.worker_main(['worker','--loglevel','info'])

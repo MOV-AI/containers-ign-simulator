@@ -5,7 +5,7 @@ from WebServerCore.ICommand import ICommand
 from WebServerCore.utils.exception import InvalidInputException
 
 import simulator_api.utils.logger as logging
-from simulator_api.async_tasks.async_tasks import echo_topic
+from simulator_api.celery_tasks.celery_tasks import echo_topic
 
 class TopicEcho(ICommand):
     """Service Command to echo a topic in simulator"""
@@ -28,9 +28,9 @@ class TopicEcho(ICommand):
 
         task = echo_topic.AsyncResult(task_id)
     
-        if task.state == 'PENDING': message = {'status': 'Task is pending'}
+        if task.state == 'PENDING': message = {'status': 'Celery Task is pending'}
         elif task.state != 'FAILURE': message = task.info  # Include any additional info you want
-        else: message = {'status': 'Task failed'}
+        else: message = {'status': 'Celery Task failed'}
 
         response = requests.Response()
         response._content = message  
