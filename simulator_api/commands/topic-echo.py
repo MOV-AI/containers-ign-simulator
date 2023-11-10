@@ -1,4 +1,4 @@
-"""Module that provides the Service command topic-echo. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
+"""Module that provides the Service command topic-echo. The purpose of this module is to expose the capability of echoing a topic with the Simulator container"""
 
 import requests
 from WebServerCore.ICommand import ICommand
@@ -7,7 +7,7 @@ from WebServerCore.utils.exception import InvalidInputException
 import simulator_api.utils.logger as logging
 from simulator_api.async_tasks.async_tasks import echo_topic
 
-class topicecho(ICommand):
+class TopicEcho(ICommand):
     """Service Command to echo a topic in simulator"""
     def __init__(self):
         self._register_mandatory_argument(
@@ -28,9 +28,9 @@ class topicecho(ICommand):
 
         task = echo_topic.AsyncResult(task_id)
     
-        if task.state == 'PENDING': message = {'status': 'Task is pending','result': task.info}
-        elif task.state != 'FAILURE': message = {'status': 'Task is in progress','result': task.info}  # Include any additional info you want
-        else: message = {'status': 'Task failed','result': task.info}
+        if task.state == 'PENDING': message = {'status': 'Task is pending'}
+        elif task.state != 'FAILURE': message = task.info  # Include any additional info you want
+        else: message = {'status': 'Task failed'}
 
         response = requests.Response()
         response._content = message  

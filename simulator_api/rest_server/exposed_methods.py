@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, request
 from WebServerCore.command_factory import CommandFactorySingleton
-from WebServerCore.handler import handler_get, handler_post
+from WebServerCore.handler import handler_get, handler_post, handler_put
 
 # The handler functions below expose the endpoints.
 # They are necessary for the application to work, in this case, with the Flask framework.
@@ -49,6 +49,16 @@ def post_call(version, post_method):
 def post_call_no_version(post_method):
     """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_post(post_method, request)
+
+@commands.route("/api/<version>/<put_method>", methods=["PUT"])
+def put_call(version, put_method):
+    """Forward the http put calls to the WebServer core handler to take advantage of the framework functionalities"""
+    return handler_put(put_method, request, version)
+
+@commands.route("/api/<put_method>", methods=["PUT"])
+def put_call_no_version(put_method):
+    """Forward the http put calls to the WebServer core handler to take advantage of the framework functionalities"""
+    return handler_put(put_method, request)
 
 
 # Test function.

@@ -1,4 +1,4 @@
-"""Module that provides the Service command topic-publish. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
+"""Module that provides the Service command topic-publish. The purpose of this module is to expose the capability of publishing a topic with the Simulator container"""
 
 import requests
 from WebServerCore.ICommand import ICommand
@@ -13,7 +13,7 @@ def publish_topic(topic, message, msgtype):
 
     return task_json
 
-class topicpublish(ICommand):
+class TopicPublish(ICommand):
     """Service Command to publish a topic in simulator"""
     def __init__(self):
         self._register_mandatory_argument(
@@ -29,10 +29,10 @@ class topicpublish(ICommand):
             "Type of message published.",
         )
 
-    def get_execute_latest(self, _url_params, task_id):
-        return self.get_execute_v1(_url_params, task_id)
+    def get_execute_latest(self, _url_params):
+        return self.get_execute_v1(_url_params)
 
-    def get_execute_v1(self, _url_params, task_id):
+    def get_execute_v1(self, _url_params):
         raise UnsupportedCommand("Method not supported.")
     
     def post_execute_latest(self, url_params, body_data):
