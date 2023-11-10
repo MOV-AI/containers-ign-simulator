@@ -8,7 +8,8 @@ requirements = [
     "requests", 
     "werkzeug==2.0", 
     "webservercore==1.1.0.1",
-    "celery"
+    "celery",
+    "SQLAlchemy"
 ]
 
 setuptools.setup(
