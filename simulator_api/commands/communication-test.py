@@ -28,10 +28,10 @@ class CommunicationTest(ICommand):
 
         return response
     
-    def post_execute_latest(self, url_params, body_data):
-        return self.post_execute_v1(url_params, body_data)
+    def post_execute_latest(self, url_params, body_data, url_specifics):
+        return self.post_execute_v1(url_params, body_data, url_specifics)
 
-    def post_execute_v1(self, url_params, body_data):
+    def post_execute_v1(self, url_params, body_data, url_specifics):
         logging.info("Post Communication Test command reached")
 
         task = communication_test.apply_async()

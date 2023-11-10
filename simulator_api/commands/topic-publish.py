@@ -29,16 +29,16 @@ class TopicPublish(ICommand):
             "Type of message published.",
         )
 
-    def get_execute_latest(self, _url_params):
-        return self.get_execute_v1(_url_params)
+    def get_execute_latest(self, _url_params, url_specifics):
+        return self.get_execute_v1(_url_params, url_specifics)
 
-    def get_execute_v1(self, _url_params):
+    def get_execute_v1(self, _url_params, url_specifics):
         raise UnsupportedCommand("Method not supported.")
     
-    def post_execute_latest(self, url_params, body_data):
-        return self.post_execute_v1(url_params, body_data)
+    def post_execute_latest(self, url_params, body_data, url_specifics):
+        return self.post_execute_v1(url_params, body_data, url_specifics)
 
-    def post_execute_v1(self, url_params, body_data):
+    def post_execute_v1(self, url_params, body_data, url_specifics):
         logging.info("Topic publish command reached")
 
         topic, message, msgtype = url_params.get("topic"), url_params.get("message"), url_params.get("msgtype")

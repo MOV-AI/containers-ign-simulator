@@ -10,12 +10,12 @@ from simulator_api.celery_tasks.celery_tasks import container_exec_cmd
 
 def apply_configuration(config_json):
 
-    status = 'OK'
+    status = 'SUCCESS'
     checklist = []
     for key, value in config_json.items():
         _, task_status, task_json = container_exec_cmd(f"export {key}={value}", save_task_name=f"export_{key}", timeout=None)
         checklist += [task_json]
-        if task_status != 'OK': status = 'NOK'
+        if task_status != 'SUCCESS': status = 'ERROR'
 
     return {'status' : status, 'checklist' : checklist}
 
@@ -27,23 +27,23 @@ class Configuration(ICommand):
             "Configuration file to be applied.",
         )
 
-    def get_execute_latest(self, _url_params):
+    def get_execute_latest(self, _url_params, url_specifics):
         return self.get_execute_v1(_url_params)
 
-    def get_execute_v1(self, _url_params):
+    def get_execute_v1(self, _url_params, url_specifics):
         raise UnsupportedCommand("Method not supported.")
     
-    def post_execute_latest(self, url_params, body_data):
-        return self.post_execute_v1(url_params, body_data)
+    def post_execute_latest(self, url_params, body_data, url_specifics):
+        return self.post_execute_v1(url_params, body_data, url_specifics)
 
-    def post_execute_v1(self, url_params, body_data):
+    def post_execute_v1(self, url_params, body_data, url_specifics):
         raise UnsupportedCommand("Method not supported.")
         
     
-    def put_execute_latest(self, url_params):
-        return self.put_execute_v1(url_params)
+    def put_execute_latest(self, url_params, body_data, url_specifics):
+        return self.put_execute_v1(url_params, body_data, url_specifics)
     
-    def put_execute_v1(self, url_params):
+    def put_execute_v1(self, url_params, body_data, url_specifics):
         logging.info("Configuration command reached")
 
         config_string = url_params.get("config")

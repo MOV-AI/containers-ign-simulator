@@ -32,12 +32,12 @@ def get_call_no_version(get_method):
 @commands.route("/api/<version>/<get_method>/<task_id>", methods=["GET"])
 def get_status_call(version, get_method, task_id):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_get(get_method, request, version, task_id)
+    return handler_get(get_method, request, version, url_specifics=task_id)
 
 @commands.route("/api/<get_method>/<task_id>", methods=["GET"])
 def get_status_call_no_version(get_method, task_id):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_get(get_method, request, task_id=task_id)
+    return handler_get(get_method, request, url_specifics=task_id)
 
 
 @commands.route("/api/<version>/<post_method>", methods=["POST"])
@@ -69,7 +69,7 @@ def hello():
         "statusCode": 200,
         "body": json.dumps(
             {
-                "message": "Sucess. Now use 'GetCapabilities' to know the avaiable commands."
+                "message": "Sucess. Now use 'api/get-capabilities' to know the avaiable commands."
             }
         ),
     }

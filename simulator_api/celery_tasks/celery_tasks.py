@@ -14,15 +14,15 @@ celery.conf.task_track_started = True
 
 def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
-    task_status = 'OK'
+    task_status = 'SUCCESS'
 
     timeout_flag, exitcode, result = simulator_api.utils.utils.subprocess_timeout_compliant(cmd, timeout = timeout)
     if timeout_flag:
-        task_status = 'NOK'
+        task_status = 'TIMEOUT'
         message = f"The command '{cmd}' timed out. Output: {result}."
         logging.info(message)
     elif exitcode != 0:
-        task_status = 'NOK'
+        task_status = 'ERROR'
         message = f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}."
         logging.info(message)
     else:
@@ -55,14 +55,14 @@ def communication_test():
     check_list = []
 
     # initialize command status
-    status = 'OK'
+    status = 'SUCCESS'
     
     # Run communication smoke tests
 
     # Test sim to spawner communication through topic /test_from_sim (spawner must be listening to this topic)
     cmd = 'ign topic -p "data:\"test\"" -t /test_from_sim --msgtype ignition.msgs.StringMsg'
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "simulation_to_spawner_communication")
-    if task_status != 'OK': status = task_status
+    if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
     communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
 
@@ -70,7 +70,7 @@ def communication_test():
     # change the timeout to be input
     cmd = f"ign topic -e -n 1 -t /test_from_spawner"
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "spawner_to_simulator_communication", timeout = 5)
-    if task_status != 'OK': status = task_status
+    if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
     communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
 
@@ -99,7 +99,7 @@ def communication_test():
     for topic in ["/clock","/stats"]:
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)    
-        if task_status != 'OK': status = task_status
+        if task_status != 'SUCCESS': status = task_status
         check_list.append(task_json) 
         communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})        
         
@@ -112,7 +112,7 @@ def communication_test():
     for topic in topic_names:
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"world_running{topic.replace('/','_')}_check", timeout = 1)  
-        if task_status != 'OK': status = task_status
+        if task_status != 'SUCCESS': status = task_status
         check_list.append(task_json) 
         communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})         
 

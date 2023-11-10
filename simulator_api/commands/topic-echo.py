@@ -38,10 +38,10 @@ class TopicEcho(ICommand):
 
         return response
     
-    def post_execute_latest(self, url_params, body_data):
-        return self.post_execute_v1(url_params, body_data)
+    def post_execute_latest(self, url_params, body_data, url_specifics):
+        return self.post_execute_v1(url_params, body_data, url_specifics)
 
-    def post_execute_v1(self, url_params, body_data):
+    def post_execute_v1(self, url_params, body_data, url_specifics):
         logging.info("Topic Echo command reached")
 
         topic, timeout = url_params.get("topic"), int(url_params.get("timeout"))
