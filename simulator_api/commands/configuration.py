@@ -44,6 +44,17 @@ class Configuration(ICommand):
         return self.put_execute_v1(url_params, body_data, url_specifics)
     
     def put_execute_v1(self, url_params, body_data, url_specifics):
+        """Version 1 Handler for put requests of configuration entrypoint.
+
+        Args:
+            url_params (obj): 
+            body_data (obj): 
+            url_specifics (obj): optional url specific inputs
+
+        Returns:
+            request: Response regarding the status of the configuration setting.
+        """        
+
         logging.debug("Configuration command reached")
 
         config_string = url_params.get("config")

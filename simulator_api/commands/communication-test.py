@@ -13,6 +13,15 @@ class CommunicationTest(ICommand):
         return self.get_execute_v1(_url_params, task_id)
 
     def get_execute_v1(self, _url_params, task_id):
+        """ Version 1 Handler for get requests of communication-test entrypoint.
+
+        Args:
+            _url_params (obj): optional url params
+            task_id (string): callback id used to retrieve results of a previous POST request.
+
+        Returns:
+            request: Response regarding the status of the communication test.
+        """        
 
         logging.debug("Get Simulator Status command reached")
 
@@ -32,6 +41,17 @@ class CommunicationTest(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
+        """ Version 1 Handler for post requests of communication-test entrypoint.
+
+        Args:
+            url_params (obj): optional url params
+            body_data (obj): optional body data
+            url_specifics (obj): optional url inputs
+
+        Returns:
+            request: Callback id to be used to track result
+        """        
+
         logging.debug("Post Communication Test command reached")
 
         task = communication_test.apply_async()

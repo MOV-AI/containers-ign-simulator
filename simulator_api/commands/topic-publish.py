@@ -8,6 +8,17 @@ import simulator_api.utils.logger as logging
 from simulator_api.celery_tasks.celery_tasks import container_exec_cmd
 
 def publish_topic(topic, message, msgtype):
+    """Starts a process to echo a topic.
+
+    Args:
+        topic (string): Name of the topic from which to publish a message
+        message (string): Message to publish
+        msgtype (string): Type of message being published
+
+    Returns:
+        dict: Task json specifying the status of the publish.
+    """    
+
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'
     _, _, task_json = container_exec_cmd(cmd, save_task_name = f"publish_{topic}", timeout = None)
 
@@ -39,6 +50,17 @@ class TopicPublish(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
+        """Version 1 Handler for post requests of topic-publish entrypoint.
+
+        Args:
+            url_params (dict): json containing the mandatory inputs for a publish POST request: 'topic', 'message' and 'msgtype'
+            body_data (obj): optional body data
+            url_specifics (obj): optional url specific inputs
+
+        Returns:
+            request: Response regarding the status of the publish topic.
+        """        
+
         logging.debug("Topic publish command reached")
 
         topic, message, msgtype = url_params.get("topic"), url_params.get("message"), url_params.get("msgtype")

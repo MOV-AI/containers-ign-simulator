@@ -23,6 +23,15 @@ class TopicEcho(ICommand):
         return self.get_execute_v1(_url_params, task_id)
 
     def get_execute_v1(self, _url_params, task_id):
+        """Version 1 Handler for get requests of topic-echo entrypoint.
+
+        Args:
+            _url_params (obj): optional url parameters
+            task_id (string): callback id used to retrieve results of a previous POST request.
+
+        Returns:
+            request: Response regarding the status of the echo topic.
+        """        
 
         logging.debug("Topic Echo command reached")
 
@@ -42,6 +51,17 @@ class TopicEcho(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
+        """Version 1 Handler for post requests of topic-echo entrypoint.
+
+        Args:
+            url_params (dict): json containing the mandatory inputs for an echo POST request: 'topic' and 'timeout'
+            body_data (obj): optional body data
+            url_specifics (obj): optional url specific inputs
+
+        Returns:
+            request: Callback id to be used to track result
+        """            
+
         logging.debug("Topic Echo command reached")
 
         topic, timeout = url_params.get("topic"), url_params.get("timeout")

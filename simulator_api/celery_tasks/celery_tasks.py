@@ -20,7 +20,7 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     Args:
         cmd (string): Command to run.
         save_task_name (string, optional): Name tag to identify the operation. Defaults to None.
-        timeout (string, optional): Duration of timeout for the command. Defaults to None.
+        timeout (int, optional): Duration of timeout for the command. Defaults to None.
 
     Returns:
         result (string): stdout of the operation
@@ -53,6 +53,11 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     return result, task_status, task_json
 
 def parse_config():
+    """Function to parse configuration file
+
+    Returns:
+        configParser: Configuration object containing all config variables
+    """    
 
     cfg = configparser.ConfigParser()
 
@@ -72,7 +77,16 @@ def parse_config():
 
 @celery.task()
 def echo_topic(topic, timeout):
-    """Handles topic echo inside the container."""
+    """Handles topic echo inside the container.
+
+    Args:
+        topic (string): Name of the topic to echo
+        timeout (int): Duration of echo in seconds.
+
+    Returns:
+        dict: Task json specifying the status of the echo.
+    
+    """
 
     cmd = f"ign topic -e -n 1 -t {topic}"
     _, _, task_json = container_exec_cmd(cmd, save_task_name = f"echo_{topic}", timeout = timeout)

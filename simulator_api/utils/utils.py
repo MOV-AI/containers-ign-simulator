@@ -2,6 +2,17 @@ import subprocess
 import simulator_api.utils.logger as logging
 
 def subprocess_timeout_compliant(cmd, timeout = None):
+    """Performs a subprocess for a given timeout and terminates the process at the end of the timeout.
+
+    Args:
+        cmd (string): Command to be executed
+        timeout (int, optional): Timeout duration for the process to be executed. Defaults to None.
+
+    Returns:
+        timeout_flag (bool): Flag to identify if a process has timed out.
+        exitcode (int): Exitcode of the process.
+        result (string): Stdout output of the process.
+    """    
 
     try:
         # Compliant: makes sure to terminate the child process when
@@ -30,6 +41,15 @@ def subprocess_timeout_compliant(cmd, timeout = None):
     return False, exitcode, result
 
 def subprocess_redirecting_stdout(cmd, file):
+    """Performs a subprocess and redirects the output to a given temporary file.
+
+    Args:
+        cmd (string): Command to be executed.
+        file (file): File where to save stdout and stderr.
+
+    Returns:
+        subprocess.Popen: Handle to the running process
+    """    
 
     try:
 
