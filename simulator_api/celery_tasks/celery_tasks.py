@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+import configparser
 from celery import Celery
 import simulator_api.utils.utils
 
@@ -13,6 +15,18 @@ celery.conf.worker_hijack_root_logger = False
 celery.conf.task_track_started = True
 
 def container_exec_cmd(cmd, save_task_name = None, timeout = None):
+    """Executes a shell command, evaluates the response and generates a status
+
+    Args:
+        cmd (string): Command to run.
+        save_task_name (string, optional): Name tag to identify the operation. Defaults to None.
+        timeout (string, optional): Duration of timeout for the command. Defaults to None.
+
+    Returns:
+        result (string): stdout of the operation
+        task_status (string): state tag 'SUCCESS', 'ERROR' or 'TIMEOUT'
+        task_json (json): dictionary describing the operation in detail
+    """
 
     task_status = 'SUCCESS'
 
@@ -20,14 +34,14 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     if timeout_flag:
         task_status = 'TIMEOUT'
         message = f"The command '{cmd}' timed out. Output: {result}."
-        logging.info(message)
+        logging.debug(message)
     elif exitcode != 0:
         task_status = 'ERROR'
         message = f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}."
-        logging.info(message)
+        logging.debug(message)
     else:
         message = f"The command '{cmd}' ran succesfully. Output: {result}."
-        logging.info(message)
+        logging.debug(message)
 
     task_json = {
         'name': save_task_name,
@@ -37,6 +51,24 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     }
 
     return result, task_status, task_json
+
+def parse_config():
+
+    cfg = configparser.ConfigParser()
+
+    # Read the configuration file
+    path = Path(__file__)
+    ROOT_DIR = path.parent.absolute()
+    config_path = os.path.join(ROOT_DIR, "config.ini")
+    cfg.read(config_path)
+
+    ## Check mandatory configuration variables
+    mandatory_vars = ["topic_spawner", "topic_sim", "ignition_base_topics", "world_name"]
+    for var in mandatory_vars:
+        if cfg.get("communication",var) is None: raise ValueError(f"Missing mandatory configuration variable: {var}") 
+
+    return cfg
+
 
 @celery.task()
 def echo_topic(topic, timeout):
@@ -56,11 +88,15 @@ def communication_test():
 
     # initialize command status
     status = 'SUCCESS'
+
+    # Get communication test variables
+    cfg = parse_config()
     
     # Run communication smoke tests
 
     # Test sim to spawner communication through topic /test_from_sim (spawner must be listening to this topic)
-    cmd = 'ign topic -p "data:\"test\"" -t /test_from_sim --msgtype ignition.msgs.StringMsg'
+    topic_sim = cfg.get("communication","topic_sim")
+    cmd = f'ign topic -p "data:\"test\"" -t {topic_sim} --msgtype ignition.msgs.StringMsg'
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "simulation_to_spawner_communication")
     if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
@@ -68,7 +104,8 @@ def communication_test():
 
     # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
     # change the timeout to be input
-    cmd = f"ign topic -e -n 1 -t /test_from_spawner"
+    topic_spawner = cfg.get("communication","topic_spawner")
+    cmd = f"ign topic -e -n 1 -t {topic_spawner}"
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "spawner_to_simulator_communication", timeout = 5)
     if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
@@ -96,7 +133,8 @@ def communication_test():
     #         logging.info(f"Ignition is running.")
 
     # Test that Ignition is running correctly (/clock, /stats)
-    for topic in ["/clock","/stats"]:
+    ign_topics = cfg.get("communication","ignition_base_topics")
+    for topic in ign_topics:
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)    
         if task_status != 'SUCCESS': status = task_status
@@ -107,7 +145,7 @@ def communication_test():
     # cmd = f"ign topic -l | grep 'world.*clock\|world.*stats'"
     # result = self.container_exec_cmd(cmd, save_task_name = "world_running") 
     # topic_names = result.decode('utf-8').strip().split('\n') if len(result.decode('utf-8')) > 0 else []
-    world_name = os.environ.get('IGN_WORLD_NAME')
+    world_name = cfg.get("communication","world_name")
     topic_names = [f"/world/{world_name}/clock", f"/world/{world_name}/stats"]
     for topic in topic_names:
         cmd = f"ign topic -e -n 1 -t {topic}"
