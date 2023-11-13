@@ -14,7 +14,7 @@ class CommunicationTest(ICommand):
 
     def get_execute_v1(self, _url_params, task_id):
 
-        logging.info("Get Simulator Status command reached")
+        logging.debug("Get Simulator Status command reached")
 
         task = communication_test.AsyncResult(task_id)
     
@@ -32,7 +32,7 @@ class CommunicationTest(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
-        logging.info("Post Communication Test command reached")
+        logging.debug("Post Communication Test command reached")
 
         task = communication_test.apply_async()
 

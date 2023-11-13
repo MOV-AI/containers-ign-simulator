@@ -44,7 +44,7 @@ class Configuration(ICommand):
         return self.put_execute_v1(url_params, body_data, url_specifics)
     
     def put_execute_v1(self, url_params, body_data, url_specifics):
-        logging.info("Configuration command reached")
+        logging.debug("Configuration command reached")
 
         config_string = url_params.get("config")
         if config_string is None or config_string == "":

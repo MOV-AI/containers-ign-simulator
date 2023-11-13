@@ -32,8 +32,6 @@ def subprocess_timeout_compliant(cmd, timeout = None):
 def subprocess_redirecting_stdout(cmd, file):
 
     try:
-        # Compliant: makes sure to terminate the child process when
-        # the timeout expires.
 
         proc = subprocess.Popen(
                                 cmd,
@@ -43,18 +41,18 @@ def subprocess_redirecting_stdout(cmd, file):
                                 stderr=file
                             )
         
-        logging.info(f"The command '{cmd}' ran succesfully.")
+        logging.debug(f"The command '{cmd}' ran succesfully.")
 
     except subprocess.TimeoutExpired:
 
-        logging.info(f"The command '{cmd}' timed out.")
+        logging.debug(f"The command '{cmd}' timed out.")
     
     except subprocess.CalledProcessError as e:
 
-        logging.info(f"The command '{cmd}' returned a non-zero exit status.")
+        logging.debug(f"The command '{cmd}' returned a non-zero exit status.")
 
-        if e.stdout : logging.info(f"stdout: {e.stdout.decode().strip()}")
-        if e.stderr: logging.info(f"stderr: {e.stdout.decode().strip()}")
+        if e.stdout : logging.debug(f"stdout: {e.stdout.decode().strip()}")
+        if e.stderr: logging.debug(f"stderr: {e.stdout.decode().strip()}")
     
     return proc
         

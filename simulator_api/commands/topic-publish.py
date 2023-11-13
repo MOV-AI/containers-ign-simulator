@@ -39,7 +39,7 @@ class TopicPublish(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
-        logging.info("Topic publish command reached")
+        logging.debug("Topic publish command reached")
 
         topic, message, msgtype = url_params.get("topic"), url_params.get("message"), url_params.get("msgtype")
         if topic is None or topic == "" or message is None or message == "" or msgtype is None or msgtype == "":

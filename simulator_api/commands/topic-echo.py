@@ -24,7 +24,7 @@ class TopicEcho(ICommand):
 
     def get_execute_v1(self, _url_params, task_id):
 
-        logging.info("Topic Echo command reached")
+        logging.debug("Topic Echo command reached")
 
         task = echo_topic.AsyncResult(task_id)
     
@@ -42,11 +42,12 @@ class TopicEcho(ICommand):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
     def post_execute_v1(self, url_params, body_data, url_specifics):
-        logging.info("Topic Echo command reached")
+        logging.debug("Topic Echo command reached")
 
-        topic, timeout = url_params.get("topic"), int(url_params.get("timeout"))
+        topic, timeout = url_params.get("topic"), url_params.get("timeout")
         if topic is None or topic == "" or timeout is None or timeout == "":
             raise InvalidInputException()
+        timeout = int(timeout)
 
         task = echo_topic.apply_async(args=(topic, timeout,))
 
