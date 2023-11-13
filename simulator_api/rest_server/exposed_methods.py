@@ -5,6 +5,7 @@ import json
 from flask import Blueprint, request
 from WebServerCore.command_factory import CommandFactorySingleton
 from WebServerCore.handler import handler_get, handler_post, handler_put
+import simulator_api.utils.logger as logging
 
 # The handler functions below expose the endpoints.
 # They are necessary for the application to work, in this case, with the Flask framework.
@@ -19,41 +20,43 @@ def discovery():
     CommandFactorySingleton.discover_commands(__file__)
 
 
-@commands.route("/api/<version>/<get_method>", methods=["GET"])
+@commands.route("/api/v<version>/<get_method>", methods=["GET"])
 def get_call(version, get_method):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_get(get_method, request, version)
+    logging.info("incorrect")
+    return handler_get(get_method, request, f"v{version}")
 
 @commands.route("/api/<get_method>", methods=["GET"])
 def get_call_no_version(get_method):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
+    logging.info(get_method)
     return handler_get(get_method, request)
 
-@commands.route("/api/<version>/<get_method>/<task_id>", methods=["GET"])
+@commands.route("/api/v<version>/<get_method>/<task_id>", methods=["GET"])
 def get_status_call(version, get_method, task_id):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_get(get_method, request, version, url_specifics=task_id)
+    return handler_get(get_method, request, f"v{version}", url_specifics=task_id)
 
 @commands.route("/api/<get_method>/<task_id>", methods=["GET"])
 def get_status_call_no_version(get_method, task_id):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
+    logging.info("correct")
     return handler_get(get_method, request, url_specifics=task_id)
 
-
-@commands.route("/api/<version>/<post_method>", methods=["POST"])
+@commands.route("/api/v<version>/<post_method>", methods=["POST"])
 def post_call(version, post_method):
     """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_post(post_method, request, version)
+    return handler_post(post_method, request, f"v{version}")
 
 @commands.route("/api/<post_method>", methods=["POST"])
 def post_call_no_version(post_method):
     """Forward the http post calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_post(post_method, request)
 
-@commands.route("/api/<version>/<put_method>", methods=["PUT"])
+@commands.route("/api/v<version>/<put_method>", methods=["PUT"])
 def put_call(version, put_method):
     """Forward the http put calls to the WebServer core handler to take advantage of the framework functionalities"""
-    return handler_put(put_method, request, version)
+    return handler_put(put_method, request, f"v{version}")
 
 @commands.route("/api/<put_method>", methods=["PUT"])
 def put_call_no_version(put_method):

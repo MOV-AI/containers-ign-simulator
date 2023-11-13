@@ -11,6 +11,7 @@ celery = Celery(
     broker='pyamqp://guest:guest@localhost:5672//',
     backend='db+sqlite:////tmp/celery.sqlite3'
 )
+celery.conf.broker_connection_retry_on_startup = True
 celery.conf.worker_hijack_root_logger = False
 celery.conf.task_track_started = True
 
