@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 import configparser
 from celery import Celery
@@ -66,6 +67,7 @@ def parse_config():
     path = Path(__file__)
     ROOT_DIR = path.parent.absolute()
     config_path = os.path.join(ROOT_DIR, "config.ini")
+    logging.debug(f"Configuration file : {config_path}")
     cfg.read(config_path)
 
     ## Check mandatory configuration variables
@@ -148,7 +150,7 @@ def communication_test():
     #         logging.info(f"Ignition is running.")
 
     # Test that Ignition is running correctly (/clock, /stats)
-    ign_topics = cfg.get("communication","ignition_base_topics")
+    ign_topics = json.loads(cfg.get("communication","ignition_base_topics"))
     for topic in ign_topics:
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)    
