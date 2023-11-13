@@ -7,7 +7,7 @@ requirements = [
     "flask==2.1.2", 
     "requests==2.22.0", 
     "werkzeug==2.0", 
-    "webservercore==1.1.0.1",
+    "webservercore==1.1.0.3",
     "celery==5.3.5",
     "SQLAlchemy==2.0.23"
 ]
@@ -23,8 +23,7 @@ setuptools.setup(
     url="https://github.com/MOV-AI/containers-ign-simulator",
     packages=setuptools.find_packages(),
     include_package_data=True,
+    package_data={'': ['config.ini']},
     classifiers=["Programming Language :: Python :: 3"],
-    install_requires=requirements,
-    entry_points={
-        "console_scripts": ["simulator_api = simulator_api.entrypoint:run"]},
+    install_requires=requirements
 )

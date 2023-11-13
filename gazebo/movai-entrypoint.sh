@@ -20,7 +20,7 @@ printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 
-simulator_api &
+/usr/bin/supervisord
 
 # if commands passed
 [ $# -gt 0 ] && exec "$@"

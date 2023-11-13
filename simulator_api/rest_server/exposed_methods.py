@@ -23,13 +23,11 @@ def discovery():
 @commands.route("/api/v<version>/<get_method>", methods=["GET"])
 def get_call(version, get_method):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    logging.info("incorrect")
     return handler_get(get_method, request, f"v{version}")
 
 @commands.route("/api/<get_method>", methods=["GET"])
 def get_call_no_version(get_method):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    logging.info(get_method)
     return handler_get(get_method, request)
 
 @commands.route("/api/v<version>/<get_method>/<task_id>", methods=["GET"])
@@ -40,7 +38,6 @@ def get_status_call(version, get_method, task_id):
 @commands.route("/api/<get_method>/<task_id>", methods=["GET"])
 def get_status_call_no_version(get_method, task_id):
     """Forward the http get calls to the WebServer core handler to take advantage of the framework functionalities"""
-    logging.info("correct")
     return handler_get(get_method, request, url_specifics=task_id)
 
 @commands.route("/api/v<version>/<post_method>", methods=["POST"])

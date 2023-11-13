@@ -16,7 +16,7 @@ RUN python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir \
  && python3 -m pip install -r build-requirements.txt --no-cache-dir \
  && python3 -m build .
 
-FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.3
+FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.4
 # This Dockerfile is used to build the ignition
 
 ### Args
@@ -67,11 +67,34 @@ COPY ./resources /usr/local/share/pypi-confs/resources
 RUN /usr/local/bin/setup-pypi-env.sh INT
 
 ## Install messaging broker for async calls
-RUN apt-get install rabbitmq-server
+RUN apt-get update && \
+    apt-get install -y gnupg curl && \
+    apt-get install apt-transport-https && \
+    curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null && \
+    curl -1sLf "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf77f1eda57ebb1cc" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/net.launchpad.ppa.rabbitmq.erlang.gpg > /dev/null && \
+    curl -1sLf "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/io.packagecloud.rabbitmq.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/net.launchpad.ppa.rabbitmq.erlang.gpg] http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu jammy main" | tee /etc/apt/sources.list.d/rabbitmq.list > /dev/null && \
+    echo "deb-src [signed-by=/usr/share/keyrings/net.launchpad.ppa.rabbitmq.erlang.gpg] http://ppa.launchpad.net/rabbitmq/rabbitmq-erlang/ubuntu jammy main" | tee /etc/apt/sources.list.d/rabbitmq.list > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/io.packagecloud.rabbitmq.gpg] https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ jammy main" | tee /etc/apt/sources.list.d/rabbitmq.list > /dev/null && \
+    echo "deb-src [signed-by=/usr/share/keyrings/io.packagecloud.rabbitmq.gpg] https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ jammy main" | tee /etc/apt/sources.list.d/rabbitmq.list > /dev/null && \
+    apt-get install -y erlang-base \
+    erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+    erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+    erlang-runtime-tools erlang-snmp erlang-ssl \
+    erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl --no-install-recommends -y && \
+    apt-get install rabbitmq-server --fix-missing -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* 
+
+# Install Supervisor
+RUN apt-get update && apt-get install -y supervisor gunicorn
+
+# Copy the Supervisor configuration file
+COPY gazebo/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
 
-RUN python3 -m pip install --no-cache-dir --user \
+RUN python3 -m pip install --no-cache-dir \
     /tmp_packages/*.whl && \
     rm -rf /tmp_packages/ 
