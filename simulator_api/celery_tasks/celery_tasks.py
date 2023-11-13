@@ -10,7 +10,7 @@ import simulator_api.utils.logger as logging
 celery = Celery(
     'entrypoint',
     broker='pyamqp://guest:guest@localhost:5672//',
-    backend='db+sqlite:////tmp/celery.sqlite3'
+    backend='db+sqlite:////opt/mov.ai/app/celery_data/results.sqlite3'
 )
 celery.conf.broker_connection_retry_on_startup = True
 celery.conf.worker_hijack_root_logger = False
