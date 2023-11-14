@@ -24,7 +24,7 @@ def subprocess_timeout_compliant(cmd, timeout = None):
                                     executable="/bin/bash",
                                     check=True,
                                     capture_output=True,
-                                    timeout=timeout,
+                                    timeout=timeout
                                 )
 
         result = cmd_ret.stdout
@@ -39,42 +39,6 @@ def subprocess_timeout_compliant(cmd, timeout = None):
         return False, e.returncode, e.stdout
     
     return False, exitcode, result
-
-def subprocess_redirecting_stdout(cmd, file):
-    """Performs a subprocess and redirects the output to a given temporary file.
-
-    Args:
-        cmd (string): Command to be executed.
-        file (file): File where to save stdout and stderr.
-
-    Returns:
-        subprocess.Popen: Handle to the running process
-    """    
-
-    try:
-
-        proc = subprocess.Popen(
-                                cmd,
-                                shell=True,
-                                executable="/bin/bash",
-                                stdout=file,
-                                stderr=file
-                            )
-        
-        logging.debug(f"The command '{cmd}' ran succesfully.")
-
-    except subprocess.TimeoutExpired:
-
-        logging.debug(f"The command '{cmd}' timed out.")
-    
-    except subprocess.CalledProcessError as e:
-
-        logging.debug(f"The command '{cmd}' returned a non-zero exit status.")
-
-        if e.stdout : logging.debug(f"stdout: {e.stdout.decode().strip()}")
-        if e.stderr: logging.debug(f"stderr: {e.stdout.decode().strip()}")
-    
-    return proc
         
 
 

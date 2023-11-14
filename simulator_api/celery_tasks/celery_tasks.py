@@ -47,8 +47,7 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
     task_json = {
         'name': save_task_name,
-        'timeout': timeout_flag,
-        'exitcode': exitcode,
+        'status': task_status,
         'message': message
     }
 
@@ -128,27 +127,6 @@ def communication_test():
     check_list.append(task_json)
     communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
 
-    # Verify if ignition is launched and if not launch it with world empty
-    # ign_command='pgrep -f "ign gazebo"'
-    # timeout_flag, exitcode, result = simulator_api.utils.utils.subprocess_timeout_compliant(ign_command)
-    # # if ignition is not running
-    # if timeout_flag or exitcode != 0:
-    #     message = f"Ignition is not running."
-    #     logging.info(message)
-    #     # launch ignition in thread
-    #     ign_file = "/tmp/ign_output.logs"
-    #     cmd = "ign gazebo -s empty.sdf -v"
-    #     with open(ign_file, "w+") as output_file:
-    #         ignition_process = simulator_api.utils.utils.subprocess_redirecting_stdout(cmd, output_file)
-
-    #     # verify ignition is fully started
-    #     log_to_wait_for = "Ignition"
-    #     while not os.path.exists(ign_file): continue
-    #     with open(ign_file, "r") as file:
-    #         line = file.readline()
-    #         while not log_to_wait_for in line: line = file.readline()
-    #         logging.info(f"Ignition is running.")
-
     # Test that Ignition is running correctly (/clock, /stats)
     ign_topics = json.loads(cfg.get("communication","ignition_base_topics"))
     for topic in ign_topics:
@@ -159,9 +137,6 @@ def communication_test():
         communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})        
         
     # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
-    # cmd = f"ign topic -l | grep 'world.*clock\|world.*stats'"
-    # result = self.container_exec_cmd(cmd, save_task_name = "world_running") 
-    # topic_names = result.decode('utf-8').strip().split('\n') if len(result.decode('utf-8')) > 0 else []
     world_name = cfg.get("communication","world_name")
     topic_names = [f"/world/{world_name}/clock", f"/world/{world_name}/stats"]
     for topic in topic_names:
@@ -170,12 +145,5 @@ def communication_test():
         if task_status != 'SUCCESS': status = task_status
         check_list.append(task_json) 
         communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})         
-
-    # if launched ignition stop it
-    # if (timeout_flag or exitcode != 0):
-    #     # Kill process
-    #     ignition_process.terminate()
-    #     # Delete the temporary file
-    #     if os.path.exists(ign_file): os.remove(ign_file)
 
     return {'status' : status, 'checklist' : check_list}
