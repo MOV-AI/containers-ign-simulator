@@ -1,7 +1,8 @@
 import unittest
 from unittest import mock
 
-from simulator_api.commands.topic_echo import TopicEcho, echo_topic
+from simulator_api.commands.topic_echo import TopicEcho
+from simulator_api.celery_tasks.tasks import echo_topic
 
 mock_celery_task_obj = mock.MagicMock()
 mock_celery_task_obj.id = 12345

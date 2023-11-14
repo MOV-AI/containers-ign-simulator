@@ -1,5 +1,31 @@
+import os
 import subprocess
+import configparser
+from pathlib import Path
 import simulator_api.utils.logger as logging
+
+def parse_config():
+    """Function to parse configuration file
+
+    Returns:
+        configParser: Configuration object containing all config variables
+    """    
+
+    cfg = configparser.ConfigParser()
+
+    # Read the configuration file
+    path = Path(__file__)
+    ROOT_DIR = os.path.dirname(path.parent.absolute())
+    config_path = os.path.join(ROOT_DIR, "config.ini")
+    logging.debug(f"Configuration file : {config_path}")
+    cfg.read(config_path)
+
+    ## Check mandatory configuration variables
+    mandatory_vars = ["topic_spawner", "topic_sim", "ignition_base_topics", "world_name"]
+    for var in mandatory_vars:
+        if cfg.get("communication",var) is None: raise ValueError(f"Missing mandatory configuration variable: {var}") 
+
+    return cfg
 
 def container_exec_cmd(cmd, save_task_name = None, timeout = None):
     """Executes a shell command, evaluates the response and generates a status

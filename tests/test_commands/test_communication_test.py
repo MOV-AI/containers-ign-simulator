@@ -1,7 +1,8 @@
 import unittest
 from unittest import mock
 
-from simulator_api.commands.communication_test import CommunicationTest, communication_test
+from simulator_api.commands.communication_test import CommunicationTest
+from simulator_api.celery_tasks.tasks import communication_test
 
 mock_celery_task_obj = mock.MagicMock()
 mock_celery_task_obj.id = 12345
