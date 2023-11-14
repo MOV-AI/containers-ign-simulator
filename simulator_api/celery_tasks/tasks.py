@@ -32,7 +32,13 @@ def echo_topic(topic, timeout):
 
 @celery_instance.task()
 def communication_test():
-    """Handles communication test inside the container."""
+    """Handles communication test inside the container.
+
+    Returns:
+        dict: Task json specifying the status of the communication test.
+    
+    """
+
 
     # initialize check list
     check_list = []
