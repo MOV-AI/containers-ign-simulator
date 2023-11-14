@@ -13,12 +13,26 @@ import simulator_api.utils.logger as logging
 
 commands = Blueprint("commands", __name__)
 
-
-@commands.before_app_first_request
 def discovery():
     """Lazy instantiation of the commands discovery. Commands will be discovered on first call."""
     CommandFactorySingleton.discover_commands(__file__)
 
+# Test function.
+def hello():
+    """Function simply to provide a responde if you call the root of the local service. Only works in local mode."""
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": "Sucess. Now use 'api/get-capabilities' to know the avaiable commands."
+            }
+        ),
+    }
+
+@commands.before_app_first_request
+def flask_discovery():
+    """Lazy instantiation of the commands discovery. Commands will be discovered on first call."""
+    discovery()
 
 @commands.route("/api/v<version>/<get_method>", methods=["GET"])
 def get_call(version, get_method):
@@ -60,16 +74,8 @@ def put_call_no_version(put_method):
     """Forward the http put calls to the WebServer core handler to take advantage of the framework functionalities"""
     return handler_put(put_method, request)
 
-
 # Test function.
 @commands.route("/")
-def hello():
+def flask_hello():
     """Function simply to provide a responde if you call the root of the local service. Only works in local mode."""
-    return {
-        "statusCode": 200,
-        "body": json.dumps(
-            {
-                "message": "Sucess. Now use 'api/get-capabilities' to know the avaiable commands."
-            }
-        ),
-    }
+    return hello()

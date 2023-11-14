@@ -1,2 +1,4 @@
 # requirements for the execution of tests and packaging. Not runtime requirements.
 build
+pytest
+mock

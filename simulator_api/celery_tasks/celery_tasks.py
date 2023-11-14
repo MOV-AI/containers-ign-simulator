@@ -116,7 +116,7 @@ def communication_test():
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "simulation_to_spawner_communication")
     if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
-    communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
+    communication_test.update_state(state='PROGRESS', meta={'status': status + ' (intermediate)','checklist': check_list}) 
 
     # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
     # change the timeout to be input
@@ -125,7 +125,7 @@ def communication_test():
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name = "spawner_to_simulator_communication", timeout = 5)
     if task_status != 'SUCCESS': status = task_status
     check_list.append(task_json)
-    communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list}) 
+    communication_test.update_state(state='PROGRESS', meta={'status': status + ' (intermediate)','checklist': check_list}) 
 
     # Test that Ignition is running correctly (/clock, /stats)
     ign_topics = json.loads(cfg.get("communication","ignition_base_topics"))
@@ -134,7 +134,7 @@ def communication_test():
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"ignition_running{topic.replace('/','_')}_check", timeout = 1)    
         if task_status != 'SUCCESS': status = task_status
         check_list.append(task_json) 
-        communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})        
+        communication_test.update_state(state='PROGRESS', meta={'status': status + ' (intermediate)','checklist': check_list})        
         
     # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
     world_name = cfg.get("communication","world_name")
@@ -144,6 +144,6 @@ def communication_test():
         _, task_status, task_json = container_exec_cmd(cmd, save_task_name = f"world_running{topic.replace('/','_')}_check", timeout = 1)  
         if task_status != 'SUCCESS': status = task_status
         check_list.append(task_json) 
-        communication_test.update_state(state='PROGRESS', meta={'intermediary_status': status,'intermediary_checklist': check_list})         
+        communication_test.update_state(state='PROGRESS', meta={'status': status + ' (intermediate)','checklist': check_list})         
 
     return {'status' : status, 'checklist' : check_list}
