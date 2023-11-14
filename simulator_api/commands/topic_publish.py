@@ -16,7 +16,7 @@ def publish_topic(topic, message, msgtype):
         msgtype (string): Type of message being published
 
     Returns:
-        dict: Task json specifying the status of the publish.
+        task_json (dict): Task json specifying the status of the publish.
     """    
 
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'
@@ -58,7 +58,7 @@ class TopicPublish(ICommand):
             url_specifics (obj): optional url specific inputs
 
         Returns:
-            request: Response regarding the status of the publish topic.
+            response (request): Response regarding the status of the publish topic.
         """        
 
         logging.debug("Topic publish command reached")

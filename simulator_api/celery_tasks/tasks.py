@@ -21,7 +21,7 @@ def echo_topic(topic, timeout):
         timeout (int): Duration of echo in seconds.
 
     Returns:
-        dict: Task json specifying the status of the echo.
+        task_json (dict): Task json specifying the status of the echo.
     
     """
 

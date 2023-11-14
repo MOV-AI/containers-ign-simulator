@@ -20,7 +20,7 @@ class CommunicationTest(ICommand):
             task_id (string): callback id used to retrieve results of a previous POST request.
 
         Returns:
-            request: Response regarding the status of the communication test.
+            response (request): Response regarding the status of the communication test.
         """        
 
         logging.debug("Get Simulator Status command reached")
@@ -49,7 +49,7 @@ class CommunicationTest(ICommand):
             url_specifics (obj): optional url inputs
 
         Returns:
-            request: Callback id to be used to track result
+            response (request): Callback id to be used to track result
         """        
 
         logging.debug("Post Communication Test command reached")

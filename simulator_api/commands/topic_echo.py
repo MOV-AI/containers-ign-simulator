@@ -30,7 +30,7 @@ class TopicEcho(ICommand):
             task_id (string): callback id used to retrieve results of a previous POST request.
 
         Returns:
-            request: Response regarding the status of the echo topic.
+            response (request): Response regarding the status of the echo topic.
         """        
 
         logging.debug("Topic Echo command reached")
@@ -59,7 +59,7 @@ class TopicEcho(ICommand):
             url_specifics (obj): optional url specific inputs
 
         Returns:
-            request: Callback id to be used to track result
+            response (request): Callback id to be used to track result
         """            
 
         logging.debug("Topic Echo command reached")
