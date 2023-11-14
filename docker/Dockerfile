@@ -57,45 +57,40 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
-# Copy runtime scripts
-COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+## Install messaging broker for async calls, supervisord and gunicorn
+RUN apt-get update && \
+    apt-get install -y gnupg --no-install-recommends -y && \
+    apt-get install apt-transport-https --no-install-recommends -y && \
+    apt-get install rabbitmq-server --fix-missing  --no-install-recommends -y && \
+    apt-get install -y supervisor gunicorn --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* 
 
+# Copy runtime scripts and configuration files
+COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
 COPY ./resources /usr/local/share/pypi-confs/resources
 
 ### Add experimental repositories to pip
 RUN /usr/local/bin/setup-pypi-env.sh INT
 
-## Install messaging broker for async calls
-RUN apt-get update && \
-    apt-get install -y gnupg --no-install-recommends -y && \
-    apt-get install apt-transport-https --no-install-recommends -y && \
-    apt-get install rabbitmq-server --fix-missing  --no-install-recommends -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* 
-
-# Install Supervisor
-RUN apt-get update && apt-get install -y supervisor gunicorn --no-install-recommends
-
-# Copy the Supervisor configuration file
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
 
 RUN apt-get update && \
-    apt-get install -y build-essential --no-install-recommends
-
-RUN python3 -m pip install --no-cache-dir \
+    apt-get install -y build-essential --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --no-cache-dir \
     /tmp_packages/*.whl && \
     rm -rf /tmp_packages/ 
 
 # Give celery permissions to write on the celery volume
-RUN mkdir -p /opt/mov.ai/app/celery_data && \
-    chown movai:movai /opt/mov.ai/app/celery_data
-
 # Give flask permissions to write on the flask volume
-RUN mkdir -p /opt/mov.ai/app/flask_data && \
+RUN mkdir -p /opt/mov.ai/app/celery_data && \
+    chown movai:movai /opt/mov.ai/app/celery_data && \
+    mkdir -p /opt/mov.ai/app/flask_data && \
     chown movai:movai /opt/mov.ai/app/flask_data
 
 # Declare volumes for Flask and Celery databases
