@@ -5,7 +5,26 @@ from WebServerCore.ICommand import ICommand
 from WebServerCore.utils.exception import InvalidInputException
 
 import simulator_api.utils.logger as logging
-from simulator_api.celery_tasks.celery_tasks import echo_topic
+from simulator_api.celery_instance.celery import celery_instance
+from simulator_api.utils.utils import container_exec_cmd
+
+@celery_instance.task()
+def echo_topic(topic, timeout):
+    """Handles topic echo inside the container.
+
+    Args:
+        topic (string): Name of the topic to echo
+        timeout (int): Duration of echo in seconds.
+
+    Returns:
+        dict: Task json specifying the status of the echo.
+    
+    """
+
+    cmd = f"ign topic -e -n 1 -t {topic}"
+    _, _, task_json = container_exec_cmd(cmd, save_task_name = f"echo_{topic}", timeout = timeout)
+    
+    return task_json
 
 class TopicEcho(ICommand):
     """Service Command to echo a topic in simulator"""
