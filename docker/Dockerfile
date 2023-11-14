@@ -58,7 +58,7 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
 # Copy runtime scripts
-COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
 COPY ./resources /usr/local/share/pypi-confs/resources
@@ -78,7 +78,7 @@ RUN apt-get update && \
 RUN apt-get update && apt-get install -y supervisor gunicorn --no-install-recommends
 
 # Copy the Supervisor configuration file
-COPY gazebo/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
