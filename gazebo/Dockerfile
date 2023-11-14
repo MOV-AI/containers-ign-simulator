@@ -91,5 +91,9 @@ RUN python3 -m pip install --no-cache-dir \
 RUN mkdir -p /opt/mov.ai/app/celery_data && \
     chown movai:movai /opt/mov.ai/app/celery_data
 
+# Give flask permissions to write on the flask volume
+RUN mkdir -p /opt/mov.ai/app/flask_data && \
+    chown movai:movai /opt/mov.ai/app/flask_data
+
 # Declare volumes for Flask and Celery databases
 VOLUME ["/opt/mov.ai/app/flask_data", "/opt/mov.ai/app/celery_data"]
