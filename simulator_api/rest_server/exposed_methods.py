@@ -24,7 +24,7 @@ def hello():
         "statusCode": 200,
         "body": json.dumps(
             {
-                "message": "Sucess. Now use 'api/get-capabilities' to know the avaiable commands."
+                "message": "Sucess. Now use 'api/get-capabilities' to know the available commands."
             }
         ),
     }
