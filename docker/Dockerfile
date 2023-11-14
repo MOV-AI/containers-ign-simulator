@@ -83,6 +83,9 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Deploy application code inside the container
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
 
+RUN RUN apt-get update && \
+    apt-get install -y build-essential --no-install-recommends
+
 RUN python3 -m pip install --no-cache-dir \
     /tmp_packages/*.whl && \
     rm -rf /tmp_packages/ 
