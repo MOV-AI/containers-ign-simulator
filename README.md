@@ -46,63 +46,48 @@ xhost +local:docker
 docker run -it --privileged --runtime=nvidia -e MOVAI_ENV=qa -e QT_X11_NO_MITSHM=1 -e DISPLAY=$DISPLAY -e NVIDIA_VISIBLE_DEVICES=all -e NVIDIA_DRIVER_CAPABILITIES=graphics -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /tmp/.docker.xauth:/tmp/.docker.xauth ign-simulator:test ign gazebo
 ```
 
+## Simulator Web Server Application
 
+The simulator web server api is reachable through port 8081 and offers 3 endpoints:
+- `http://0.0.0.0:8081/api/communication-test`
+- `http://0.0.0.0:8081/api/topic-echo`
+- `http://0.0.0.0:8081/api/publish-echo`
 
-### Simulator Web Server Application
+If a get request is succesful, the response of every endpoint is a json, which always contains a **status** key with the value **SUCCESS**, **TIMEOUT** or **ERROR**, depending on the status of the task requested.
 
-#### Version 1
+### Communication Test Endpoint
 
-Specify status options in documentation and return enum
+The communication test endpoint's purpose is to perform a series of communication tasks to check communication between the simulator container and the host where the tests are being requested. To achieve this goal, the endpoint offers two call methods:
+- a `POST` method to start the series of comm tests, which returns a task id and can be called with or without arguments as follows:
+    - `POST http://0.0.0.0:8081/api/communication-test`, in which case the followings parameters are set as default:
+        - echo_topic = /test_from_spawner
+        - publish_topic = /test_from_sim
+        - world_name = empty
+        - timeout = 5
+    - `POST http://0.0.0.0:8081/api/communication-test?echo-topic=FILL&publish-topic=FILL&world-name=FILL&timeout=FILL`, in which case you can specify the topics to echo and publish, the world to verify and the duration of the echo.
+    - output: task_id (string)
+- a `GET` method to get the status of the comm tests, which
+    - is called as `GET http://0.0.0.0:8081/api/communication-test/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
+    - outputs a response (json) with format `{"status": global_status, "checklist": [{"name": task_name, "status": task_status, "message": task_message}, ...]}`
 
-GET `api/v1/GetSimulatorStatus`
+The tasks performed are as follows:
+- echo a defined topic during a specified duration; with the purpose of testing communication from host to simulator
+- publish a defined message in a defined topic; with the purpose of testing communication from simulator to host
+- echo the topics /clock and /stats; with the purpose of testing if a simulation instance is running
+- echo the world specific topics /world/<world-name>/clock and /world/<world-name>/stats; with the purpose of testing if a specific world is properly loaded
 
-`{'status': 'ok', 'checklist': [{'status': 'timeout', 'name': "", 'message': ""},{'status': timeout, 'name': "", 'message': ""}, {'status': timeout, 'name': "", 'message': ""}]}`
+### Topic Echo Endpoint
 
-#### Version 2
+The topic echo endpoint's purpose is to perform an echo of a specified topic during a specified time in the simulator container. To achieve this goal, the endpoint offers two call methods:
+- a `POST` method to start the echo, which returns a task id and must be called with arguments as follows:
+    - `POST http://0.0.0.0:8081/api/topic-echo?topic=FILL&timeout=FILL`, where you need to specify the topic and the duration to echo for.
+- a `GET` method to get the status of the echo, which
+    - is called as `GET http://0.0.0.0:8081/api/topic-echo/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
+    - outputs a response (json) with format `{"name": task_name, "status": task_status, "message": task_message}`
 
-- Run sim - spawner comm test
-    - define the topic name for the test
-    - do an echo on spawner
-    - POST `api/v1/topic {topic_name} {topic_data}`
-    - result
+### Topic Publish Endpoint
 
-- Run spawner - sim comm test 
-    - define the topic name for the test
-    - do an publish on spawner
-    - POSt `api/v1/topic {topic_name} {timeout}` -> id
-    - GET `api/v1/topic/id {echo_id}`
-    - result
-
-- Check ignition is running
-    - topics clock and stats
-    - POST `api/v1/topic {topic_name} {timeout}` -> id
-    - GET `api/v1/topic {echo_id}`
-    - result (if ignition is running or not) 
-    - POST `api/v1/configure {config_json}`
-    - POST `api/v1/run`
-
-- Check if a world is properly loaded
-    - define the world name to check
-    - POST `api/v1/topic {topic_name} {timeout}` -> id
-    - GET `api/v1/topic/id`
-    - result (if topics are not listened to)
-    - POST `api/v1/configure {config_json}`
-    - POST `api/v1/run`
-
-POST `api/v1/topic-echo {topic_name} {timeout}` -> id
-GET `api/v1/topic-echo/id`
-
-POST `api/v1/topic-pub {topic_name} {topic_data}`
-
-POST `api/v1/configuration {config_json}`  # define the default world to be launched, environment variables
-POST `api/v1/simulation_instance {config_json}` # display, distributed parameters, with world, without world, with gui without gui
-
-Output format: `{'status': timeout|success|failure, 'message': "[error code] explanation"}`
-
-POST `api/v1/communication-test {test_parameters}`  -> id
-GET `api/v1/communication-test/id` 
-
-Output format: `{'status': timeout|success|failure, 'checklist': [{'status': 'timeout', 'name': "", 'message': ""},{'status': timeout, 'name': "", 'message': ""}, {'status': timeout, 'name': "", 'message': ""}]}`
-
-
-
+The topic publish endpoint's purpose is to publish a specified topic message in the simulator container. To achieve this goal, the endpoint offers one call method:
+- a `POST` method to start the echo, which must be called with arguments as follows:
+    - `POST http://0.0.0.0:8081/api/topic-publish?topic=FILL&message=FILL&msgtype=FILL`, where you need to specify the topic, the data to publish and the type of data to publish, equal to how it is specified in an ignition command.
+    - outputs a response (json) with format `{"name": task_name, "status": task_status, "message": task_message}`
