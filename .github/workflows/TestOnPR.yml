@@ -61,4 +61,3 @@ jobs:
         github_registry_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
         github_registry_password: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}
         snyk_token: ${{ secrets.SNYK_TOKEN }}
-

@@ -1,6 +1,6 @@
 FROM registry.cloud.mov.ai/devops/py-buildserver:latest AS py_builder
 
-COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
+COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
 
 ### Add experimental repositories to pip
@@ -66,12 +66,12 @@ RUN apt-get update && \
     apt-get install rabbitmq-server=3.8.2-0ubuntu1 --fix-missing  --no-install-recommends -y && \
     apt-get install -y supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* 
+    rm -rf /var/lib/apt/lists/*
 
 # Copy runtime scripts and configuration files
 COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh 
+COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
 
 ### Add experimental repositories to pip
@@ -86,7 +86,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir \
     /tmp_packages/*.whl && \
-    rm -rf /tmp_packages/ 
+    rm -rf /tmp_packages/
 
 # Give celery permissions to write on the celery volume
 # Give flask permissions to write on the flask volume

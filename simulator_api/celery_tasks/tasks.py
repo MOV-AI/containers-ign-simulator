@@ -52,9 +52,13 @@ def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, du
     cfg = parse_config()
 
     # Retrieve communication variables
-    topic_to_echo = cfg.get("communication", "topic_spawner") if (topic_to_echo is None or topic_to_echo == "") else topic_to_echo
+    topic_to_echo = (
+        cfg.get("communication", "topic_spawner") if (topic_to_echo is None or topic_to_echo == "") else topic_to_echo
+    )
     topic_to_publish = (
-        cfg.get("communication", "topic_sim") if (topic_to_publish is None or topic_to_publish == "") else topic_to_publish
+        cfg.get("communication", "topic_sim")
+        if (topic_to_publish is None or topic_to_publish == "")
+        else topic_to_publish
     )
     world = cfg.get("communication", "world_name") if (world is None or world == "") else world
     timeout = int(cfg.get("communication", "timeout")) if (duration is None or duration == "") else int(duration)

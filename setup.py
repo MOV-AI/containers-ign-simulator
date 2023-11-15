@@ -4,12 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 requirements = [
-    "flask==2.1.2", 
-    "requests==2.22.0", 
-    "werkzeug==2.0", 
+    "flask==2.1.2",
+    "requests==2.22.0",
+    "werkzeug==2.0",
     "webservercore==1.1.0.3",
     "celery==5.3.5",
-    "SQLAlchemy==2.0.23"
+    "SQLAlchemy==2.0.23",
 ]
 
 setuptools.setup(
@@ -25,5 +25,5 @@ setuptools.setup(
     include_package_data=True,
     package_data={'': ['config.ini']},
     classifiers=["Programming Language :: Python :: 3"],
-    install_requires=requirements
+    install_requires=requirements,
 )
