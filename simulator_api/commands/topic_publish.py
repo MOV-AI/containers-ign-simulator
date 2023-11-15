@@ -7,6 +7,7 @@ from WebServerCore.utils.exception import InvalidInputException, UnsupportedComm
 import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import container_exec_cmd
 
+
 def publish_topic(topic, message, msgtype):
     """Starts a process to echo a topic.
 
@@ -17,15 +18,17 @@ def publish_topic(topic, message, msgtype):
 
     Returns:
         task_json (dict): Task json specifying the status of the publish.
-    """    
+    """
 
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'
-    _, _, task_json = container_exec_cmd(cmd, save_task_name = f"publish_{topic}", timeout = None)
+    _, _, task_json = container_exec_cmd(cmd, save_task_name=f"publish_{topic}", timeout=None)
 
     return task_json
 
+
 class TopicPublish(ICommand):
     """Service Command to publish a topic in simulator"""
+
     def __init__(self):
         self._register_mandatory_argument(
             "topic",
@@ -45,7 +48,7 @@ class TopicPublish(ICommand):
 
     def get_execute_v1(self, _url_params, url_specifics):
         raise UnsupportedCommand("Method not supported.")
-    
+
     def post_execute_latest(self, url_params, body_data, url_specifics):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
@@ -59,7 +62,7 @@ class TopicPublish(ICommand):
 
         Returns:
             response (request): Response regarding the status of the publish topic.
-        """        
+        """
 
         logging.debug("Topic publish command reached")
 
@@ -70,7 +73,7 @@ class TopicPublish(ICommand):
         result = publish_topic(topic, message, msgtype)
 
         response = requests.Response()
-        response._content = result  
+        response._content = result
         response.status_code = 200
 
         return response

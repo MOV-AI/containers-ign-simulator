@@ -4,12 +4,13 @@ import configparser
 from pathlib import Path
 import simulator_api.utils.logger as logging
 
+
 def parse_config():
     """Function to parse configuration file
 
     Returns:
         configParser: Configuration object containing all config variables
-    """    
+    """
 
     cfg = configparser.ConfigParser()
 
@@ -23,11 +24,13 @@ def parse_config():
     ## Check mandatory configuration variables
     mandatory_vars = ["topic_spawner", "topic_sim", "ignition_base_topics", "world_name"]
     for var in mandatory_vars:
-        if cfg.get("communication",var) is None: raise ValueError(f"Missing mandatory configuration variable: {var}") 
+        if cfg.get("communication", var) is None:
+            raise ValueError(f"Missing mandatory configuration variable: {var}")
 
     return cfg
 
-def container_exec_cmd(cmd, save_task_name = None, timeout = None):
+
+def container_exec_cmd(cmd, save_task_name=None, timeout=None):
     """Executes a shell command, evaluates the response and generates a status
 
     Args:
@@ -43,7 +46,7 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
 
     task_status = 'SUCCESS'
 
-    timeout_flag, exitcode, result = subprocess_timeout_compliant(cmd, timeout = timeout)
+    timeout_flag, exitcode, result = subprocess_timeout_compliant(cmd, timeout=timeout)
     if timeout_flag:
         task_status = 'TIMEOUT'
         message = f"The command '{cmd}' timed out. Output: {result}."
@@ -56,15 +59,12 @@ def container_exec_cmd(cmd, save_task_name = None, timeout = None):
         message = f"The command '{cmd}' ran succesfully. Output: {result}."
         logging.debug(message)
 
-    task_json = {
-        'name': save_task_name,
-        'status': task_status,
-        'message': message
-    }
+    task_json = {'name': save_task_name, 'status': task_status, 'message': message}
 
     return result, task_status, task_json
 
-def subprocess_timeout_compliant(cmd, timeout = None):
+
+def subprocess_timeout_compliant(cmd, timeout=None):
     """Performs a subprocess for a given timeout and terminates the process at the end of the timeout.
 
     Args:
@@ -75,20 +75,15 @@ def subprocess_timeout_compliant(cmd, timeout = None):
         timeout_flag (bool): Flag to identify if a process has timed out.
         exitcode (int): Exitcode of the process.
         result (string): Stdout output of the process.
-    """    
+    """
 
     try:
         # Compliant: makes sure to terminate the child process when
         # the timeout expires.
 
         cmd_ret = subprocess.run(
-                                    cmd,
-                                    shell=True,
-                                    executable="/bin/bash",
-                                    check=True,
-                                    capture_output=True,
-                                    timeout=timeout
-                                )
+            cmd, shell=True, executable="/bin/bash", check=True, capture_output=True, timeout=timeout
+        )
 
         result = cmd_ret.stdout
         exitcode = cmd_ret.returncode
@@ -96,12 +91,9 @@ def subprocess_timeout_compliant(cmd, timeout = None):
     except subprocess.TimeoutExpired as e:
 
         return True, None, None
-    
+
     except subprocess.CalledProcessError as e:
 
         return False, e.returncode, e.stdout
-    
+
     return False, exitcode, result
-        
-
-

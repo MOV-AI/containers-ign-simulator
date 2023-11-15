@@ -7,8 +7,10 @@ from WebServerCore.utils.exception import InvalidInputException
 import simulator_api.utils.logger as logging
 from simulator_api.celery_tasks.tasks import echo_topic
 
+
 class TopicEcho(ICommand):
     """Service Command to echo a topic in simulator"""
+
     def __init__(self):
         self._register_mandatory_argument(
             "topic",
@@ -31,22 +33,25 @@ class TopicEcho(ICommand):
 
         Returns:
             response (request): Response regarding the status of the echo topic.
-        """        
+        """
 
         logging.debug("Topic Echo command reached")
 
         task = echo_topic.AsyncResult(task_id)
-    
-        if task.state == 'PENDING': message = {'status': 'Celery Task is pending'}
-        elif task.state != 'FAILURE': message = task.info  # Include any additional info you want
-        else: message = {'status': 'Celery Task failed'}
+
+        if task.state == 'PENDING':
+            message = {'status': 'Celery Task is pending'}
+        elif task.state != 'FAILURE':
+            message = task.info  # Include any additional info you want
+        else:
+            message = {'status': 'Celery Task failed'}
 
         response = requests.Response()
-        response._content = message  
+        response._content = message
         response.status_code = 200
 
         return response
-    
+
     def post_execute_latest(self, url_params, body_data, url_specifics):
         return self.post_execute_v1(url_params, body_data, url_specifics)
 
@@ -60,7 +65,7 @@ class TopicEcho(ICommand):
 
         Returns:
             response (request): Callback id to be used to track result
-        """            
+        """
 
         logging.debug("Topic Echo command reached")
 
@@ -69,7 +74,12 @@ class TopicEcho(ICommand):
             raise InvalidInputException()
         timeout = int(timeout)
 
-        task = echo_topic.apply_async(args=(topic, timeout,))
+        task = echo_topic.apply_async(
+            args=(
+                topic,
+                timeout,
+            )
+        )
 
         response = requests.Response()
         response._content = {'task_id': task.id}
