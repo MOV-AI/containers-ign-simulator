@@ -16,12 +16,13 @@ class TestCommandTopicEcho(unittest.TestCase):
 
         mock_echo_topic_async_result.return_value = mock_celery_task_obj
 
+        input_topic = "/dummy"
+        input_timeout = 1
+
         command = TopicEcho()
 
         # put request
-        response = command.post_execute_latest(
-            {"topic": "dummmy", "message": "dummy", "msgtype": "dummy-type"}, None, None
-        )
+        response = command.post_execute_latest({"topic": input_topic, "timeout": input_timeout}, None, None)
         mock_echo_topic_async_result.assert_called_once()
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, {'task_id': 12345})
