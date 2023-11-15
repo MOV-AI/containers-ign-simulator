@@ -57,12 +57,14 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
+RUN apt-cache madison gnupg
+
 ## Install messaging broker for async calls, supervisord and gunicorn
 RUN apt-get update && \
-    apt-get install -y gnupg --no-install-recommends -y && \
-    apt-get install apt-transport-https --no-install-recommends -y && \
-    apt-get install rabbitmq-server --fix-missing  --no-install-recommends -y && \
-    apt-get install -y supervisor gunicorn --no-install-recommends && \
+    apt-get install -y gnupg=2.2.19-3ubuntu2.2 --no-install-recommends -y && \
+    apt-get install apt-transport-https=2.0.2 --no-install-recommends -y && \
+    apt-get install rabbitmq-server=3.8.2-0ubuntu1 --fix-missing  --no-install-recommends -y && \
+    apt-get install -y supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
@@ -79,7 +81,7 @@ RUN /usr/local/bin/setup-pypi-env.sh INT
 COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
 
 RUN apt-get update && \
-    apt-get install -y build-essential --no-install-recommends && \
+    apt-get install -y build-essential=12.8ubuntu1 --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir \
