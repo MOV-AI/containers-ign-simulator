@@ -19,7 +19,7 @@ class TestCommandCommunicationTest(unittest.TestCase):
         command = CommunicationTest()
 
         # put request
-        response = command.post_execute_latest("arg", "arg", "arg")
+        response = command.post_execute_latest(None, None, None)
         mock_communincation_test_async_result.assert_called_once()
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, {'task_id': 12345})
@@ -32,7 +32,7 @@ class TestCommandCommunicationTest(unittest.TestCase):
         command = CommunicationTest()
 
         # put request
-        response = command.get_execute_latest("arg", 12345)
+        response = command.get_execute_latest(None, 12345)
         mock_communincation_test_async_result.assert_called_once()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, {'status': "SUCCESS", 'info': "hello"})
