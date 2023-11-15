@@ -5,7 +5,6 @@ import json
 from flask import Blueprint, request
 from WebServerCore.command_factory import CommandFactorySingleton
 from WebServerCore.handler import handler_get, handler_post, handler_put
-import simulator_api.utils.logger as logging
 
 # The handler functions below expose the endpoints.
 # They are necessary for the application to work, in this case, with the Flask framework.

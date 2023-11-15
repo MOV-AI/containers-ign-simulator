@@ -21,7 +21,7 @@ def parse_config():
     logging.debug(f"Configuration file : {config_path}")
     cfg.read(config_path)
 
-    ## Check mandatory configuration variables
+    # Check mandatory configuration variables
     mandatory_vars = ["topic_spawner", "topic_sim", "ignition_base_topics", "world_name"]
     for var in mandatory_vars:
         if cfg.get("communication", var) is None:
@@ -88,7 +88,7 @@ def subprocess_timeout_compliant(cmd, timeout=None):
         result = cmd_ret.stdout
         exitcode = cmd_ret.returncode
 
-    except subprocess.TimeoutExpired as e:
+    except subprocess.TimeoutExpired:
 
         return True, None, None
 

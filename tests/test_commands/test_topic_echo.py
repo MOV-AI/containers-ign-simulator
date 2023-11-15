@@ -27,7 +27,7 @@ class TestCommandTopicEcho(unittest.TestCase):
         self.assertEqual(response.content, {'task_id': 12345})
 
     @mock.patch('simulator_api.commands.topic_echo.echo_topic.AsyncResult')
-    def test_post_execute_communication_test(self, mock_echo_topic_async_result):
+    def test_get_execute_communication_test(self, mock_echo_topic_async_result):
 
         mock_echo_topic_async_result.return_value = mock_celery_task_obj
 
