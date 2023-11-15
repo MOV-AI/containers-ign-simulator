@@ -54,9 +54,12 @@ class CommunicationTest(ICommand):
 
         logging.debug("Post Communication Test command reached")
 
-        echo_topic, publish_topic, world_name, duration = url_params.get("echo-topic"), url_params.get("publish-topic"), url_params.get("world-name"), url_params.get("timeout")
-
-        task = communication_test.apply_async(args=(echo_topic, publish_topic, world_name, duration))
+        # Check if optional params were provided
+        if url_params is None or url_params=="": 
+            task = communication_test.apply_async()
+        else:
+            echo_topic, publish_topic, world_name, duration = url_params.get("echo-topic"), url_params.get("publish-topic"), url_params.get("world-name"), url_params.get("timeout")
+            task = communication_test.apply_async(args=(echo_topic, publish_topic, world_name, duration))
 
         response = requests.Response()
         response._content = {'task_id': task.id}
