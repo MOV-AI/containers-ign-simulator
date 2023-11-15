@@ -44,7 +44,7 @@ class CommunicationTest(ICommand):
         """ Version 1 Handler for post requests of communication-test entrypoint.
 
         Args:
-            url_params (obj): optional url params
+            url_params (dict): json containing the optional inputs for an echo POST request: 'echo_topic', 'publish_topic', 'world_name' and 'timeout'
             body_data (obj): optional body data
             url_specifics (obj): optional url inputs
 
@@ -54,7 +54,9 @@ class CommunicationTest(ICommand):
 
         logging.debug("Post Communication Test command reached")
 
-        task = communication_test.apply_async()
+        echo_topic, publish_topic, world_name, duration = url_params.get("echo_topic"), url_params.get("publish_topic"), url_params.get("world_name"), url_params.get("timeout")
+
+        task = communication_test.apply_async(args=(echo_topic, publish_topic, world_name, duration))
 
         response = requests.Response()
         response._content = {'task_id': task.id}
