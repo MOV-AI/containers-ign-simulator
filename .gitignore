@@ -1,3 +1,6 @@
 dist/
 **/__pycache__/
 simulator_api.egg-info/
+.coverage
+coverage.xml
+.tox/

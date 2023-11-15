@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    - id: check-docstring-first     # checks if docstring is before code
+    - id: check-json                # checks if json files are valid
+    - id: check-added-large-files   # checks if large files were added
+    - id: check-merge-conflict      # checks if all merge conflicts were resolved
+    - id: check-yaml                # checks if yaml files are valid
+    - id: debug-statements          # checks if debug statements are to be commited
+    - id: end-of-file-fixer         # fixes missing line ending in end of file
+    - id: mixed-line-ending         # fixes line files line ending
+      args: [--fix=lf]
+    - id: trailing-whitespace       # removes trailing whitespaces from text files
+      exclude: .bumpversion.cfg     # a tool edits this file and leaves trailing spaces, must be ignored
+
+  - repo: https://github.com/ambv/black     # formats Python code
+    rev: 22.12.0
+    hooks:
+    - id: black
+      args: ["--line-length=120", "-S"]
+
+  - repo: https://github.com/pycqa/flake8   # static tests Python code
+    rev: 6.0.0
+    hooks:
+    - id: flake8
+      args: ['--config', '.flake8']
+
+  # pylint does dynamic testing using data from imported modules
+  # thus the modules need to be found by it
+  # the easiest way to accomplish this is using it as a local hook
+  # see https://stackoverflow.com/questions/61238318/pylint-and-pre-commit-hook-unable-to-import
+  - repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
+        require_serial: true
+        args: [ "-E"]
