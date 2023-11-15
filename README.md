@@ -8,7 +8,7 @@ Image is built as follow :
 
 | Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ignition-fortress | movai-base-focal:v2.4.3 | 1.0.3-1 |
+| ignition-fortress | movai-base-focal:v2.4.4 | 1.0.3-1 |
 
 
 
@@ -16,7 +16,7 @@ Image is built as follow :
 
 Build IGN Simulator image based on MOVAI bionic :
 
-    docker build -t ign-simulator:test . -f gazebo/Dockerfile
+    docker build -t ign-simulator:test . -f docker/Dockerfile
 
 ## Usage
 
@@ -34,6 +34,11 @@ sudo apt-get install -y nvidia-docker2
 sudo systemctl restart docker
 ```
 
+- Launch simulator API:
+```
+docker run -td -e MOVAI_ENV=qa -e DISPLAY=$DISPLAY ign-simulator:test
+```
+
 - Launch simulator:
 ```
 xhost +local:docker
@@ -49,9 +54,9 @@ docker run -it --privileged --runtime=nvidia -e MOVAI_ENV=qa -e QT_X11_NO_MITSHM
 ## Simulator Web Server Application
 
 The simulator web server api is reachable through port 8081 and offers 3 endpoints:
-- `http://0.0.0.0:8081/api/communication-test`
-- `http://0.0.0.0:8081/api/topic-echo`
-- `http://0.0.0.0:8081/api/publish-echo`
+- `/api/communication-test`
+- `/api/topic-echo`
+- `/api/publish-echo`
 
 If a get request is succesful, the response of every endpoint is a json, which always contains a **status** key with the value **SUCCESS**, **TIMEOUT** or **ERROR**, depending on the status of the task requested.
 
@@ -59,15 +64,15 @@ If a get request is succesful, the response of every endpoint is a json, which a
 
 The communication test endpoint's purpose is to perform a series of communication tasks to check communication between the simulator container and the host where the tests are being requested. To achieve this goal, the endpoint offers two call methods:
 - a `POST` method to start the series of comm tests, which returns a task id and can be called with or without arguments as follows:
-    - `POST http://0.0.0.0:8081/api/communication-test`, in which case the followings parameters are set as default:
+    - `POST /api/communication-test`, in which case the followings parameters are set as default:
         - echo_topic = /test_from_spawner
         - publish_topic = /test_from_sim
         - world_name = empty
         - timeout = 5
-    - `POST http://0.0.0.0:8081/api/communication-test?echo-topic=FILL&publish-topic=FILL&world-name=FILL&timeout=FILL`, in which case you can specify the topics to echo and publish, the world to verify and the duration of the echo.
+    - `POST /api/communication-test?echo-topic=FILL&publish-topic=FILL&world-name=FILL&timeout=FILL`, in which case you can specify the topics to echo and publish, the world to verify and the duration of the echo.
     - output: task_id (string)
 - a `GET` method to get the status of the comm tests, which
-    - is called as `GET http://0.0.0.0:8081/api/communication-test/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
+    - is called as `GET /api/communication-test/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
     - outputs a response (json) with format `{"status": global_status, "checklist": [{"name": task_name, "status": task_status, "message": task_message}, ...]}`
 
 The tasks performed are as follows:
@@ -80,14 +85,14 @@ The tasks performed are as follows:
 
 The topic echo endpoint's purpose is to perform an echo of a specified topic during a specified time in the simulator container. To achieve this goal, the endpoint offers two call methods:
 - a `POST` method to start the echo, which returns a task id and must be called with arguments as follows:
-    - `POST http://0.0.0.0:8081/api/topic-echo?topic=FILL&timeout=FILL`, where you need to specify the topic and the duration to echo for.
+    - `POST /api/topic-echo?topic=FILL&timeout=FILL`, where you need to specify the topic and the duration to echo for.
 - a `GET` method to get the status of the echo, which
-    - is called as `GET http://0.0.0.0:8081/api/topic-echo/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
+    - is called as `GET /api/topic-echo/<task-id>`, where `<task-id>` corresponds to the id retrieved from the POST request.
     - outputs a response (json) with format `{"name": task_name, "status": task_status, "message": task_message}`
 
 ### Topic Publish Endpoint
 
 The topic publish endpoint's purpose is to publish a specified topic message in the simulator container. To achieve this goal, the endpoint offers one call method:
 - a `POST` method to start the echo, which must be called with arguments as follows:
-    - `POST http://0.0.0.0:8081/api/topic-publish?topic=FILL&message=FILL&msgtype=FILL`, where you need to specify the topic, the data to publish and the type of data to publish, equal to how it is specified in an ignition command.
+    - `POST /api/topic-publish?topic=FILL&message=FILL&msgtype=FILL`, where you need to specify the topic, the data to publish and the type of data to publish, equal to how it is specified in an ignition command.
     - outputs a response (json) with format `{"name": task_name, "status": task_status, "message": task_message}`

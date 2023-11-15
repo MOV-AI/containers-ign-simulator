@@ -97,3 +97,6 @@ RUN mkdir -p /opt/mov.ai/app/celery_data && \
 
 # Declare volumes for Flask and Celery databases
 VOLUME ["/opt/mov.ai/app/flask_data", "/opt/mov.ai/app/celery_data"]
+
+# Set healthcheck
+HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 CMD curl --fail http://localhost:8081/ || exit 1
