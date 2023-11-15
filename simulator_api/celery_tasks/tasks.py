@@ -1,3 +1,4 @@
+"""Module that initializes Celery and defines tasks for asynchronous execution."""
 import json
 from celery import Celery
 from simulator_api.utils.utils import parse_config
@@ -33,7 +34,7 @@ def echo_topic(topic, timeout):
 
 
 @celery_instance.task()
-def communication_test(echo_topic=None, publish_topic=None, world=None, duration=None):
+def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, duration=None):
     """Handles communication test inside the container.
 
     Returns:
@@ -51,17 +52,17 @@ def communication_test(echo_topic=None, publish_topic=None, world=None, duration
     cfg = parse_config()
 
     # Retrieve communication variables
-    topic_sim = cfg.get("communication", "topic_sim") if (echo_topic is None or echo_topic == "") else echo_topic
-    topic_spawner = (
-        cfg.get("communication", "topic_spawner") if (publish_topic is None or publish_topic == "") else publish_topic
+    topic_to_echo = cfg.get("communication", "topic_spawner") if (topic_to_echo is None or topic_to_echo == "") else topic_to_echo
+    topic_to_publish = (
+        cfg.get("communication", "topic_sim") if (topic_to_publish is None or topic_to_publish == "") else topic_to_publish
     )
-    world_name = cfg.get("communication", "world_name") if (world is None or world == "") else world
+    world = cfg.get("communication", "world_name") if (world is None or world == "") else world
     timeout = int(cfg.get("communication", "timeout")) if (duration is None or duration == "") else int(duration)
 
     # Run communication smoke tests
 
     # Test sim to spawner communication through topic /test_from_sim (spawner must be listening to this topic)
-    cmd = f'ign topic -p "data:\"test\"" -t {topic_sim} --msgtype ignition.msgs.StringMsg'
+    cmd = f'ign topic -p "data:\"test\"" -t {topic_to_echo} --msgtype ignition.msgs.StringMsg'
     _, task_status, task_json = container_exec_cmd(cmd, save_task_name="simulation_to_spawner_communication")
     if task_status != 'SUCCESS':
         status = task_status
@@ -71,7 +72,7 @@ def communication_test(echo_topic=None, publish_topic=None, world=None, duration
     )
 
     # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
-    cmd = f"ign topic -e -n 1 -t {topic_spawner}"
+    cmd = f"ign topic -e -n 1 -t {topic_to_publish}"
     _, task_status, task_json = container_exec_cmd(
         cmd, save_task_name="spawner_to_simulator_communication", timeout=timeout
     )
@@ -97,8 +98,8 @@ def communication_test(echo_topic=None, publish_topic=None, world=None, duration
         )
 
     # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
-    topic_names = [f"/world/{world_name}/clock", f"/world/{world_name}/stats"]
-    for topic in topic_names:
+    ign_topics = [f"/world/{world}/clock", f"/world/{world}/stats"]
+    for topic in ign_topics:
         cmd = f"ign topic -e -n 1 -t {topic}"
         _, task_status, task_json = container_exec_cmd(
             cmd, save_task_name=f"world_running{topic.replace('/','_')}_check", timeout=1
