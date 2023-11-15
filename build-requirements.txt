@@ -2,3 +2,6 @@
 build
 pytest
 mock
+flake8
+pylint
+black
