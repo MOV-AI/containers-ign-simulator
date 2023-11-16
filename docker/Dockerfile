@@ -57,8 +57,6 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
-RUN apt-cache madison gnupg
-
 ## Install messaging broker for async calls, supervisord and gunicorn
 RUN apt-get update && \
     apt-get install -y gnupg=2.2.19-3ubuntu2.2 --no-install-recommends -y && \
@@ -70,9 +68,13 @@ RUN apt-get update && \
 
 # Copy runtime scripts and configuration files
 COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./docker/start-celery.sh /usr/local/bin/start-celery.sh
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
+
+# Make script executable
+RUN chmod +x /usr/local/bin/start-celery.sh
 
 ### Add experimental repositories to pip
 RUN /usr/local/bin/setup-pypi-env.sh INT
