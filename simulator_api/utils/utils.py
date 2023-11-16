@@ -30,13 +30,14 @@ def parse_config():
     return cfg
 
 
-def container_exec_cmd(cmd, save_task_name=None, timeout=None):
+def container_exec_cmd(cmd, save_task_name, timeout=None, checklist=None):
     """Executes a shell command, evaluates the response and generates a status
 
     Args:
         cmd (string): Command to run.
-        save_task_name (string, optional): Name tag to identify the operation. Defaults to None.
+        save_task_name (string): Name tag to identify the operation. Defaults to None.
         timeout (int, optional): Duration of timeout for the command. Defaults to None.
+        checklist (list, optional): list of task status.
 
     Returns:
         result (string): stdout of the operation
@@ -61,7 +62,11 @@ def container_exec_cmd(cmd, save_task_name=None, timeout=None):
 
     task_json = {'name': save_task_name, 'status': task_status, 'message': message}
 
-    return result, task_status, task_json
+    if not (checklist is None):
+        checklist.append(task_json)
+        return checklist
+
+    return task_json
 
 
 def subprocess_timeout_compliant(cmd, timeout=None):

@@ -2,9 +2,11 @@
 
 import requests
 from WebServerCore.ICommand import ICommand
+from werkzeug.exceptions import BadRequest
 from WebServerCore.utils.exception import InvalidInputException
 
 import simulator_api.utils.logger as logging
+from simulator_api.utils.utils import parse_config
 from simulator_api.celery_tasks.tasks import echo_topic
 
 
@@ -69,10 +71,21 @@ class TopicEcho(ICommand):
 
         logging.debug("Topic Echo command reached")
 
+        # Get maximum timeout allowed
+        cfg = parse_config()
+        max_timeout = int(cfg.get("communication", "max_timeout"))
+
         topic, timeout = url_params.get("topic"), url_params.get("timeout")
         if topic is None or topic == "" or timeout is None or timeout == "":
             raise InvalidInputException()
-        timeout = int(timeout)
+        if topic[0] != "/":
+            raise BadRequest(f"Not valid topic: {topic}")
+        try:
+            timeout = int(timeout)
+        except ValueError:
+            raise BadRequest(f"Not valid timeout: {timeout}")
+        if timeout > max_timeout:
+            raise BadRequest(f"Timeout larger than maximum allowed ({max_timeout}): {timeout}")
 
         task = echo_topic.apply_async(
             args=(

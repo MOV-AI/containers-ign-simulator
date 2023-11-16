@@ -1,10 +1,13 @@
 """Module that provides the Service command communication-test. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
 
+import re
 import requests
 from WebServerCore.ICommand import ICommand
+from werkzeug.exceptions import NotFound, BadRequest
 
 import simulator_api.utils.logger as logging
-from simulator_api.celery_tasks.tasks import communication_test
+from simulator_api.utils.utils import parse_config
+from simulator_api.celery_tasks.tasks import communication_test, get_running_task_ids
 
 
 class CommunicationTest(ICommand):
@@ -26,10 +29,15 @@ class CommunicationTest(ICommand):
 
         logging.debug("Get Simulator Status command reached")
 
+        if task_id is None or task_id == "":
+            raise BadRequest(f"Celery tasks running: [{', '.join(get_running_task_ids())}]")
+
         task = communication_test.AsyncResult(task_id)
 
         if task.state == 'PENDING':
-            message = {'status': 'Celery Task is pending'}
+            raise NotFound(f"Task ID {task_id} not found.")
+        elif task.state == 'SENT':
+            raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
         elif task.state != 'FAILURE':
             message = task.info  # Include any additional info you want
         else:
@@ -58,6 +66,10 @@ class CommunicationTest(ICommand):
 
         logging.debug("Post Communication Test command reached")
 
+        # Get maximum timeout allowed
+        cfg = parse_config()
+        max_timeout = int(cfg.get("communication", "max_timeout"))
+
         # Check if optional params were provided
         if url_params is None or url_params == "":
             task = communication_test.apply_async()
@@ -68,6 +80,24 @@ class CommunicationTest(ICommand):
                 url_params.get("world-name"),
                 url_params.get("timeout"),
             )
+
+            # Verification of inputs
+            for topic in [echo_topic, publish_topic]:
+                if not (topic is None or topic == "") and topic[0] != "/":
+                    raise BadRequest(f"Not valid topic: {topic}")
+            if (
+                not (world_name is None or world_name == "")
+                and re.compile(r'^[a-zA-Z0-9_]+$').match(world_name) is None
+            ):
+                raise BadRequest(f"Not valid world name: {world_name}")
+            if not (duration is None or duration == ""):
+                try:
+                    duration = int(duration)
+                except ValueError:
+                    raise BadRequest(f"Not valid timeout: {duration}")
+                if duration > max_timeout:
+                    raise BadRequest(f"Timeout larger than maximum allowed ({max_timeout}): {duration}")
+
             task = communication_test.apply_async(args=(echo_topic, publish_topic, world_name, duration))
 
         response = requests.Response()

@@ -1,6 +1,7 @@
 """Module that provides the Service command topic-publish. The purpose of this module is to expose the capability of publishing a topic with the Simulator container"""
 
 import requests
+from werkzeug.exceptions import BadRequest
 from WebServerCore.ICommand import ICommand
 from WebServerCore.utils.exception import InvalidInputException, UnsupportedCommand
 
@@ -21,7 +22,7 @@ def publish_topic(topic, message, msgtype):
     """
 
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'
-    _, _, task_json = container_exec_cmd(cmd, save_task_name=f"publish_{topic}", timeout=None)
+    task_json = container_exec_cmd(cmd, save_task_name=f"publish_{topic}", timeout=None)
 
     return task_json
 
@@ -69,6 +70,8 @@ class TopicPublish(ICommand):
         topic, message, msgtype = url_params.get("topic"), url_params.get("message"), url_params.get("msgtype")
         if topic is None or topic == "" or message is None or message == "" or msgtype is None or msgtype == "":
             raise InvalidInputException()
+        if topic[0] != "/":
+            raise BadRequest(f"Not valid topic: {topic}")
 
         result = publish_topic(topic, message, msgtype)
 
