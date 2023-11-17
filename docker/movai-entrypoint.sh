@@ -23,5 +23,5 @@ export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &
 
 # if commands passed
-[ $# -gt 0 ] && exec "$@"
+[ $# -gt 0 ] && $@
 # else

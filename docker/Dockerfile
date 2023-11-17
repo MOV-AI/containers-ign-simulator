@@ -53,6 +53,7 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
 ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
+ENV RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq.pid
 
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
