@@ -62,7 +62,7 @@ def echo_topic(topic, timeout):
     """
 
     cmd = f"ign topic -e -n 1 -t {topic}"
-    task_json = container_exec_cmd(cmd, save_task_name=f"echo_{topic}", timeout=timeout)
+    task_json = container_exec_cmd(cmd, timeout=timeout)
 
     return task_json
 
@@ -101,30 +101,26 @@ def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, du
 
     # Test sim to spawner communication through topic /test_from_sim (spawner must be listening to this topic)
     cmd = f'ign topic -p "data:\"test\"" -t {topic_to_echo} --msgtype ignition.msgs.StringMsg'
-    check_list = container_exec_cmd(cmd, "simulation_to_spawner_communication", checklist=check_list)
+    check_list = container_exec_cmd(cmd, checklist=check_list)
     communication_test.update_state(state='PROGRESS', meta={'status': status, 'checklist': check_list})
 
     # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
     cmd = f"ign topic -e -n 1 -t {topic_to_publish}"
-    check_list = container_exec_cmd(cmd, "spawner_to_simulator_communication", timeout=timeout, checklist=check_list)
+    check_list = container_exec_cmd(cmd, timeout=timeout, checklist=check_list)
     communication_test.update_state(state='PROGRESS', meta={'status': status, 'checklist': check_list})
 
     # Test that Ignition is running correctly (/clock, /stats)
     ign_topics = json.loads(cfg.get("communication", "ignition_base_topics"))
     for topic in ign_topics:
         cmd = f"ign topic -e -n 1 -t {topic}"
-        check_list = container_exec_cmd(
-            cmd, f"ignition_running{topic.replace('/','_')}_check", timeout=1, checklist=check_list
-        )
+        check_list = container_exec_cmd(cmd, timeout=1, checklist=check_list)
         communication_test.update_state(state='PROGRESS', meta={'status': status, 'checklist': check_list})
 
     # Test that a world is loaded correctly (/world/*/clock, /world/*/stats)
     ign_topics = [f"/world/{world}/clock", f"/world/{world}/stats"]
     for topic in ign_topics:
         cmd = f"ign topic -e -n 1 -t {topic}"
-        check_list = container_exec_cmd(
-            cmd, save_task_name=f"world_running{topic.replace('/','_')}_check", timeout=1, checklist=check_list
-        )
+        check_list = container_exec_cmd(cmd, timeout=1, checklist=check_list)
         communication_test.update_state(state='PROGRESS', meta={'status': status, 'checklist': check_list})
 
     task_status = [check["status"] for check in check_list]
