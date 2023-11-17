@@ -45,13 +45,13 @@ class TestCommandTopicEcho(unittest.TestCase):
 
         input_topic = "/dummy"
         # Expected results without ignition installed
-        expected_name = f"echo_{input_topic}"
+        expected_command = f'ign topic -e -n 1 -t {input_topic}'
         expected_status = "ERROR"
-        expected_message = f"The command 'ign topic -e -n 1 -t {input_topic}' returned a non-zero exit status"
+        expected_exitcode = 127  # command not found
 
         result = echo_topic(input_topic, 1)
-        self.assertEqual(len(list(result.keys())), 3)
-        # Keys of dictionary are name, status and message.
-        self.assertEqual(result['name'], expected_name)
+        self.assertEqual(len(list(result.keys())), 4)
+        # Keys of dictionary are command, status, exitcode and output.
+        self.assertEqual(result['command'], expected_command)
         self.assertEqual(result['status'], expected_status)
-        self.assertIn(expected_message, result['message'])
+        self.assertEqual(expected_exitcode, result['exitcode'])

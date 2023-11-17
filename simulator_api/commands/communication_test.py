@@ -29,8 +29,12 @@ class CommunicationTest(ICommand):
 
         logging.debug("Get Simulator Status command reached")
 
+        response = requests.Response()
+        response.status_code = 200
+
         if task_id is None or task_id == "":
-            raise BadRequest(f"Celery tasks running: [{', '.join(get_running_task_ids())}]")
+            response._content = f"Celery tasks running: [{', '.join(get_running_task_ids())}]"
+            return response
 
         task = communication_test.AsyncResult(task_id)
 
@@ -39,13 +43,9 @@ class CommunicationTest(ICommand):
         elif task.state == 'SENT':
             raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
         elif task.state != 'FAILURE':
-            message = task.info  # Include any additional info you want
+            response._content = task.info  # Include any additional info you want
         else:
-            message = {'status': 'Celery Task failed'}
-
-        response = requests.Response()
-        response._content = message
-        response.status_code = 200
+            response._content = {'status': 'Celery Task failed'}
 
         return response
 

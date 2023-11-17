@@ -22,7 +22,7 @@ def publish_topic(topic, message, msgtype):
     """
 
     cmd = f'ign topic -p "{message}" -t {topic} --msgtype {msgtype}'
-    task_json = container_exec_cmd(cmd, save_task_name=f"publish_{topic}", timeout=None)
+    task_json = container_exec_cmd(cmd, timeout=None)
 
     return task_json
 
