@@ -1,15 +1,9 @@
 [MESSAGES CONTROL]
-disable=print-statement,
-        parameter-unpacking,
-        unpacking-in-except,
-        old-raise-syntax,
-        backtick,
-        no-self-use,
-        logging-fstring-interpolation,
+disable=logging-fstring-interpolation,
         missing-class-docstring
 ignore=setup.py,
 ignore-patterns=.*_test.*?py,.*test_.*?py,.*test.*?py,.*pb2.*,.*yml, .*toml, .*txt, .*md
-ignore-long-lines
+ignore-long-lines=^import\s.+|^from\s.+
 
 [FORMAT]
 max-line-length=120
