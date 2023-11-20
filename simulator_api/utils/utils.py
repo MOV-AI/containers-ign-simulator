@@ -88,19 +88,18 @@ def subprocess_timeout_compliant(cmd, timeout=None):
         # Compliant: makes sure to terminate the child process when
         # the timeout expires.
 
+        logging.info(cmd)
+
         cmd_ret = subprocess.run(
             cmd, shell=True, executable="/bin/bash", check=True, capture_output=True, timeout=timeout
         )
 
-        result = cmd_ret.stdout
-        exitcode = cmd_ret.returncode
+    except subprocess.TimeoutExpired as e:
 
-    except subprocess.TimeoutExpired:
-
-        return True, None, None
+        return True, 0, None
 
     except subprocess.CalledProcessError as e:
 
         return False, e.returncode, e.stdout + e.stderr
 
-    return False, exitcode, result
+    return False, cmd_ret.returncode, cmd_ret.stdout
