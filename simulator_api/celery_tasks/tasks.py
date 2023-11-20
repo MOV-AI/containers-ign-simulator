@@ -1,8 +1,6 @@
 """Module that initializes Celery and defines tasks for asynchronous execution."""
 import json
 from celery import Celery
-from sqlalchemy.exc import IntegrityError
-from celery.signals import after_task_publish
 
 import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
@@ -17,29 +15,6 @@ celery_instance = Celery(
 celery_instance.conf.broker_connection_retry_on_startup = True
 celery_instance.conf.worker_hijack_root_logger = False
 celery_instance.conf.task_track_started = True
-
-
-@after_task_publish.connect
-def update_sent_state(sender=None, headers=None, **kwargs):
-    """Updates the state of a task if it has been requested
-
-    Args:
-        sender (string, optional): Name of the task being sent. Defaults to None.
-        headers (dict, optional): Task message headers. Defaults to None.
-    """
-
-    # the task may not exist if sent using `send_task` which
-    # sends tasks by name, so fall back to the default result backend
-    # if that is the case.
-    task = celery_instance.tasks.get(sender)
-    backend = task.backend if task else celery_instance.backend
-
-    task_id = headers['id']
-    try:
-        if backend.get_state(task_id) == 'PENDING':
-            backend.store_result(task_id, {'status': 'Celery Task is pending'}, "SENT")
-    except IntegrityError:
-        logging.info("Skipping task state update, due to concurrent access to the database.")
 
 
 def get_running_task_ids():

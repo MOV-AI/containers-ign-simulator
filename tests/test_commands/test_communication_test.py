@@ -38,7 +38,7 @@ class TestCommandCommunicationTest(unittest.TestCase):
         self.assertEqual(response.content, {'status': "SUCCESS", 'info': "hello"})
 
     @mock.patch('simulator_api.commands.communication_test.communication_test.update_state')
-    def test_communication_test(self, mock_communincation_test_update):
+    def test_communication_test(self, mock_communication_test_update):
 
         result = communication_test()
         # Expected results without ignition installed

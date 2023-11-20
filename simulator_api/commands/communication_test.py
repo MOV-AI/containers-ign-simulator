@@ -41,9 +41,10 @@ class CommunicationTest(ICommand):
         task = communication_test.AsyncResult(task_id)
 
         if task.state == 'PENDING':
-            raise NotFound(f"Task ID {task_id} not found.")
-        elif task.state == 'SENT':
-            raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
+            if task.id in get_running_task_ids():
+                raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
+            else:
+                raise NotFound(f"Task ID {task_id} not found.")
         elif task.state != 'FAILURE':
             response._content = task.info  # Include any additional info you want
         else:
