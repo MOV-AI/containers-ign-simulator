@@ -1,3 +1,5 @@
+""" Setup file for the simulator_api package. """
+
 import setuptools
 
 with open("README.md", "r") as fh:

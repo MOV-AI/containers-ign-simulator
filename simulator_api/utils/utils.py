@@ -64,7 +64,7 @@ def container_exec_cmd(cmd, timeout=None, checklist=None):
         task_json['exitcode'] = exitcode
         task_json['output'] = result.decode()
 
-    if not (checklist is None):
+    if checklist is not None:
         checklist.append(task_json)
         return checklist
 

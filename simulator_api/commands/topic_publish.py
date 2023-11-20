@@ -1,4 +1,5 @@
-"""Module that provides the Service command topic-publish. The purpose of this module is to expose the capability of publishing a topic with the Simulator container"""
+"""Module that provides the Service command topic-publish.
+The purpose of this module is to expose the capability of publishing a topic with the Simulator container"""
 
 import requests
 from werkzeug.exceptions import BadRequest
@@ -57,7 +58,8 @@ class TopicPublish(ICommand):
         """Version 1 Handler for post requests of topic-publish entrypoint.
 
         Args:
-            url_params (dict): json containing the mandatory inputs for a publish POST request: 'topic', 'message' and 'msgtype'
+            url_params (dict): json containing the mandatory inputs for a publish
+              POST request: 'topic', 'message' and 'msgtype'
             body_data (obj): optional body data
             url_specifics (obj): optional url specific inputs
 
@@ -85,6 +87,6 @@ class TopicPublish(ICommand):
         description = {
             "command": "topic-publish",
             "method": "POST",
-            "description": "This command will publish a topic in the simulator container and fetch the status of the publish.",
+            "description": "This command will publish a topic in the simulator container and return the status.",
         }
         return description

@@ -1,10 +1,12 @@
 """Module that initializes Celery and defines tasks for asynchronous execution."""
 import json
 from celery import Celery
+from celery.signals import after_task_publish
+
+import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
 from simulator_api.utils.utils import container_exec_cmd
-from celery.signals import after_task_publish
-import simulator_api.utils.logger as logging
+
 
 celery_instance = Celery(
     'entrypoint',

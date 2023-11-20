@@ -1,4 +1,5 @@
 [![Build&Deploy MOVAI Ignition Gazebo](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml/badge.svg?branch=main)](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml)
+ <a href="https://sonarcloud.io/summary/new_code?id=MOV-AI_containers-ign-simulator"><img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=MOV-AI_containers-ign-simulator&metric=alert_status"></a>
 
 # MOVAI Ignition Gazebo Container
 
@@ -96,3 +97,7 @@ The topic publish endpoint's purpose is to publish a specified topic message in 
 - a `POST` method to start the echo, which must be called with arguments as follows:
     - `POST /api/topic-publish?topic=FILL&message=FILL&msgtype=FILL`, where you need to specify the topic, the data to publish and the type of data to publish, equal to how it is specified in an ignition command.
     - outputs a response (json) with format `{"name": task_name, "status": task_status, "message": task_message}`
+
+## License
+
+[MOV.AI](https://www.mov.ai/)

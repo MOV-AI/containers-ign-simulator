@@ -1,4 +1,6 @@
-"""Module that provides the Service command communication-test. The purpose of this module is to expose the capability of retrieving the status of communication with the Simulator container"""
+"""Module that provides the Service command communication-test.
+ The purpose of this module is to expose the capability of
+ retrieving the status of communication with the Simulator container"""
 
 import re
 import requests

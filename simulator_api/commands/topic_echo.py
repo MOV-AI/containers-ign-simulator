@@ -1,9 +1,10 @@
-"""Module that provides the Service command topic-echo. The purpose of this module is to expose the capability of echoing a topic with the Simulator container"""
+"""Module that provides the Service command topic-echo.
+The purpose of this module is to expose the capability of echoing a topic with the Simulator container"""
 
 import requests
 from WebServerCore.ICommand import ICommand
-from werkzeug.exceptions import BadRequest
 from WebServerCore.utils.exception import InvalidInputException
+from werkzeug.exceptions import BadRequest
 
 import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
@@ -103,6 +104,6 @@ class TopicEcho(ICommand):
         description = {
             "command": "topic-echo",
             "method": "GET, POST",
-            "description": "This command will echo a topic in the simulator container and fetch the status of the echo.",
+            "description": "This command will echo a topic in the simulator container and return the status.",
         }
         return description
