@@ -1,7 +1,7 @@
 """Module that initializes Celery and defines tasks for asynchronous execution."""
 import os
 import json
-import sqlite3
+import sqlalchemy
 from datetime import datetime
 from celery import Celery
 from celery.signals import after_task_publish
@@ -31,24 +31,27 @@ def save_task_id(headers=None, **kwargs):
         headers (dict, optional): Task message headers. Defaults to None.
     """
 
-    conn = sqlite3.connect(task_id_db_path)
-    
-    # Create table to save values if it does not exist
-    conn.execute(
-        '''
-                    CREATE TABLE IF NOT EXISTS celery_tasks (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        task_id TEXT,
-                        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                '''
-    )
+    engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
+    # Create the Metadata Object 
+    meta = sqlalchemy.MetaData() 
 
-    # Insert new task into table
-    conn.execute('INSERT INTO celery_tasks (task_id, created) VALUES (?,?)', (headers['id'], datetime.now()))
+    if not sqlalchemy.inspection.inspect(engine).has_table('celery_data'):
+        table = sqlalchemy.Table(
+                                    'celery_data', meta, 
+                                    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
+                                    sqlalchemy.Column('task_id', sqlalchemy.String), 
+                                    sqlalchemy.Column('created', sqlalchemy.DateTime, default=datetime.now()), 
+                                )
+        # Check if the table already exists before creating it
+        meta.create_all(engine)
+    else:
+        # Load table
+        table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
 
-    conn.commit()
-    conn.close()
+    # Add row
+    with engine.connect() as conn:
+        conn.execute(sqlalchemy.insert(table).values({'task_id': headers['id']}))
+        conn.commit()
 
 def get_task_ids():
     """Retrieves all celery task ids of the current session
@@ -60,19 +63,13 @@ def get_task_ids():
     task_ids = []
     if os.path.exists(task_id_db_path):
 
-        conn = sqlite3.connect(task_id_db_path)
-        cursor = conn.cursor()
-
-        # Execute a SELECT query to retrieve task_id values
-        cursor.execute('SELECT task_id FROM celery_tasks')
+        engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
+        meta = sqlalchemy.MetaData()
+        table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
 
         # Fetch all the results
-        task_ids = list(map(lambda x: x[0], cursor.fetchall()))
-
-        logging.info(task_ids)
-
-        # Close the database connection
-        conn.close()
+        with engine.connect() as conn:
+            task_ids = list(map(lambda x: x[0], conn.execute(sqlalchemy.select(table.columns.task_id)).fetchall()))
 
     return task_ids
 
