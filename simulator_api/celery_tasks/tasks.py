@@ -4,7 +4,7 @@ import json
 import sqlite3
 from datetime import datetime
 from celery import Celery
-from celery.signals import task_postrun
+from celery.signals import after_task_publish
 
 import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
@@ -20,53 +20,47 @@ celery_instance.conf.broker_connection_retry_on_startup = True
 celery_instance.conf.worker_hijack_root_logger = False
 celery_instance.conf.task_track_started = True
 
+task_id_db_path = "/opt/mov.ai/app/celery_data/celery_tasks.sqlite3"
 
-@task_postrun.connect()
-def task_post_run(task_id=None, state=None, **kwargs):
-    """Adds the task id of a complete task to a finished_tasks table
+
+@after_task_publish.connect()
+def save_task_id(headers=None, **kwargs):
+    """Adds the task id of a task to a celery_tasks table
 
     Args:
-        task_id (string, optional): Id of the task to be executed. Defaults to None.
-        state (string, optional): Name of the resulting state.. Defaults to None.
+        headers (dict, optional): Task message headers. Defaults to None.
     """
 
-    db_path = "/opt/mov.ai/app/celery_data/finished_tasks.sqlite3"
+    conn = sqlite3.connect(task_id_db_path)
+    
+    # Create table to save values if it does not exist
+    conn.execute(
+        '''
+                    CREATE TABLE IF NOT EXISTS celery_tasks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        task_id TEXT,
+                        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                '''
+    )
 
-    # write info about a finished task into SQLite
-    if not os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
-        # Create table to save values
-        conn.execute(
-            '''
-                        CREATE TABLE IF NOT EXISTS celery_tasks (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            task_id TEXT,
-                            state TEXT,
-                            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    '''
-        )
-    else:
-        conn = sqlite3.connect(db_path)
-    conn.execute('INSERT INTO celery_tasks (task_id, state, created) VALUES (?,?,?)', (task_id, state, datetime.now()))
+    # Insert new task into table
+    conn.execute('INSERT INTO celery_tasks (task_id, created) VALUES (?,?)', (headers['id'], datetime.now()))
 
     conn.commit()
     conn.close()
 
-
-def retrieve_task_ids():
+def get_task_ids():
     """Retrieves all celery task ids of the current session
 
     Returns:
         task_ids (list): list of celery task ids
     """
 
-    db_path = "/opt/mov.ai/app/celery_data/finished_tasks.sqlite3"
-
     task_ids = []
-    if os.path.exists(db_path):
+    if os.path.exists(task_id_db_path):
 
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(task_id_db_path)
         cursor = conn.cursor()
 
         # Execute a SELECT query to retrieve task_id values
@@ -75,26 +69,12 @@ def retrieve_task_ids():
         # Fetch all the results
         task_ids = list(map(lambda x: x[0], cursor.fetchall()))
 
+        logging.info(task_ids)
+
         # Close the database connection
         conn.close()
 
     return task_ids
-
-
-def get_running_task_ids():
-    """Returns all ids of tasks being run by celery"""
-
-    # Get the task IDs of all active tasks
-    active_tasks = [task['id'] for tasks in celery_instance.control.inspect().active().values() for task in tasks]
-    logging.info(f"Celery tasks currently active: {active_tasks}")
-    scheduled_tasks = [task['id'] for tasks in celery_instance.control.inspect().scheduled().values() for task in tasks]
-    logging.info(f"Celery tasks that have an ETA or are scheduled for later processing: {scheduled_tasks}")
-    reserved_tasks = [task['id'] for tasks in celery_instance.control.inspect().reserved().values() for task in tasks]
-    logging.info(f"Celery tasks that have been claimed by workers: {reserved_tasks}")
-    finished_tasks = retrieve_task_ids()
-    logging.info(f"Celery tasks that have been finished by workers: {finished_tasks}")
-
-    return active_tasks + scheduled_tasks + reserved_tasks + finished_tasks
 
 
 @celery_instance.task()

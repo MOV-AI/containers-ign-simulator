@@ -31,6 +31,9 @@ ARG PORT=8081
 ## Expose web server port
 EXPOSE $PORT
 
+### Rabbitmq variable that needs to be set in root before supervisord starts
+ENV RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq.pid
+
 # Copy runtime scripts and configuration files
 COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 COPY ./docker/start-celery.sh /usr/local/bin/start-celery.sh

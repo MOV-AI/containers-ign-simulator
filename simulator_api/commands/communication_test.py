@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 
 import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
-from simulator_api.celery_tasks.tasks import communication_test, get_running_task_ids
+from simulator_api.celery_tasks.tasks import communication_test, get_task_ids
 
 
 class CommunicationTest(ICommand):
@@ -35,13 +35,13 @@ class CommunicationTest(ICommand):
         response.status_code = 200
 
         if task_id is None or task_id == "":
-            response._content = f"Celery tasks: [{', '.join(get_running_task_ids())}]"
+            response._content = f"Celery tasks: [{', '.join(get_task_ids())}]"
             return response
 
         task = communication_test.AsyncResult(task_id)
 
         if task.state == 'PENDING':
-            if task.id in get_running_task_ids():
+            if task.id in get_task_ids():
                 raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
             else:
                 raise NotFound(f"Task ID {task_id} not found.")

@@ -60,7 +60,7 @@ def container_exec_cmd(cmd, timeout=None, checklist=None):
         logging.debug(message)
 
     task_json = {'command': cmd, 'status': task_status}
-    if result:
+    if result and exitcode != 0:
         task_json['exitcode'] = exitcode
         task_json['output'] = result.decode()
 
@@ -87,8 +87,6 @@ def subprocess_timeout_compliant(cmd, timeout=None):
     try:
         # Compliant: makes sure to terminate the child process when
         # the timeout expires.
-
-        logging.info(cmd)
 
         cmd_ret = subprocess.run(
             cmd, shell=True, executable="/bin/bash", check=True, capture_output=True, timeout=timeout
