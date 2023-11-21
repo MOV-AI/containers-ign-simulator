@@ -18,7 +18,8 @@ celery_instance.conf.broker_connection_retry_on_startup = True
 celery_instance.conf.worker_hijack_root_logger = False
 celery_instance.conf.task_track_started = True
 
-task_id_db_path = "/opt/mov.ai/app/celery_data/celery_tasks.sqlite3"
+task_id_table_name = 'celery_tasks'
+task_id_db_path = f"/opt/mov.ai/app/celery_data/{task_id_table_name}.sqlite3"
 
 
 @after_task_publish.connect()
@@ -33,9 +34,9 @@ def save_task_id(headers=None, **kwargs):
     # Create the Metadata Object
     meta = sqlalchemy.MetaData()
 
-    if not sqlalchemy.inspection.inspect(engine).has_table('celery_data'):
+    if not sqlalchemy.inspection.inspect(engine).has_table(task_id_table_name):
         table = sqlalchemy.Table(
-            'celery_data',
+            task_id_table_name,
             meta,
             sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
             sqlalchemy.Column('task_id', sqlalchemy.String),
@@ -46,7 +47,7 @@ def save_task_id(headers=None, **kwargs):
         meta.create_all(engine)
     else:
         # Load table
-        table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
+        table = sqlalchemy.Table(task_id_table_name, meta, autoload_with=engine)
 
     # Add row
     with engine.connect() as conn:
@@ -58,7 +59,7 @@ def save_task_id(headers=None, **kwargs):
 
 @task_postrun.connect()
 def task_post_run(task_id=None, state=None, **kwargs):
-    """Adds the task id of a complete task to a finished_tasks table
+    """Adds the task id of a complete task to a celery_tasks table
     Args:
         task_id (string, optional): Id of the task to be executed. Defaults to None.
         state (string, optional): Name of the resulting state.. Defaults to None.
@@ -66,7 +67,7 @@ def task_post_run(task_id=None, state=None, **kwargs):
 
     engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
     meta = sqlalchemy.MetaData()
-    table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
+    table = sqlalchemy.Table(task_id_table_name, meta, autoload_with=engine)
 
     # Update state
     with engine.connect() as conn:
@@ -86,7 +87,7 @@ def get_task_ids():
 
         engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
         meta = sqlalchemy.MetaData()
-        table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
+        table = sqlalchemy.Table(task_id_table_name, meta, autoload_with=engine)
 
         # Fetch all the results
         with engine.connect() as conn:
