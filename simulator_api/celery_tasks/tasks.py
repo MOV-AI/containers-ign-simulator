@@ -4,12 +4,10 @@ import json
 import sqlalchemy
 from datetime import datetime
 from celery import Celery
-from celery.signals import after_task_publish
+from celery.signals import after_task_publish, task_postrun
 
-import simulator_api.utils.logger as logging
 from simulator_api.utils.utils import parse_config
 from simulator_api.utils.utils import container_exec_cmd
-
 
 celery_instance = Celery(
     'entrypoint',
@@ -32,16 +30,18 @@ def save_task_id(headers=None, **kwargs):
     """
 
     engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
-    # Create the Metadata Object 
-    meta = sqlalchemy.MetaData() 
+    # Create the Metadata Object
+    meta = sqlalchemy.MetaData()
 
     if not sqlalchemy.inspection.inspect(engine).has_table('celery_data'):
         table = sqlalchemy.Table(
-                                    'celery_data', meta, 
-                                    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-                                    sqlalchemy.Column('task_id', sqlalchemy.String), 
-                                    sqlalchemy.Column('created', sqlalchemy.DateTime, default=datetime.now()), 
-                                )
+            'celery_data',
+            meta,
+            sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+            sqlalchemy.Column('task_id', sqlalchemy.String),
+            sqlalchemy.Column('state', sqlalchemy.String),
+            sqlalchemy.Column('created', sqlalchemy.DateTime),
+        )
         # Check if the table already exists before creating it
         meta.create_all(engine)
     else:
@@ -50,8 +50,29 @@ def save_task_id(headers=None, **kwargs):
 
     # Add row
     with engine.connect() as conn:
-        conn.execute(sqlalchemy.insert(table).values({'task_id': headers['id']}))
+        conn.execute(
+            sqlalchemy.insert(table).values({'task_id': headers['id'], 'state': "SENT", 'created': datetime.now()})
+        )
         conn.commit()
+
+
+@task_postrun.connect()
+def task_post_run(task_id=None, state=None, **kwargs):
+    """Adds the task id of a complete task to a finished_tasks table
+    Args:
+        task_id (string, optional): Id of the task to be executed. Defaults to None.
+        state (string, optional): Name of the resulting state.. Defaults to None.
+    """
+
+    engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
+    meta = sqlalchemy.MetaData()
+    table = sqlalchemy.Table('celery_data', meta, autoload_with=engine)
+
+    # Update state
+    with engine.connect() as conn:
+        conn.execute(sqlalchemy.update(table).where(table.columns.task_id == task_id).values({'state': state}))
+        conn.commit()
+
 
 def get_task_ids():
     """Retrieves all celery task ids of the current session
@@ -69,7 +90,12 @@ def get_task_ids():
 
         # Fetch all the results
         with engine.connect() as conn:
-            task_ids = list(map(lambda x: x[0], conn.execute(sqlalchemy.select(table.columns.task_id)).fetchall()))
+            task_ids = list(
+                map(
+                    lambda x: f"{x[0]} (state = {x[1]})",
+                    conn.execute(sqlalchemy.select(table.columns.task_id, table.columns.state)).fetchall(),
+                )
+            )
 
     return task_ids
 
