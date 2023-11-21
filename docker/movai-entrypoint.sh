@@ -20,7 +20,7 @@ printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &
+exec sudo /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &
 
 # if commands passed
 [ $# -gt 0 ] && $@

@@ -29,7 +29,7 @@ ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
 ENV MOVAI_ENV="release"
 
 ENV PYTHON_VERSION=3
-ENV PORT=8081
+ARG PORT=8081
 
 ## Expose web server port
 EXPOSE $PORT
@@ -49,14 +49,6 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
     mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
-
-### Set plugin env
-ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
-ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
-ENV RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq.pid
-
-### Set gazebo resource env
-ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
 
 ## Install messaging broker for async calls, supervisord and gunicorn
 RUN apt-get update && \
@@ -91,15 +83,26 @@ RUN apt-get update && \
     /tmp_packages/*.whl && \
     rm -rf /tmp_packages/
 
+# If there is a package script, install packages then clean up
+RUN [ -f /etc/sudoers.d/movai ] || touch /etc/sudoers.d/movai && \
+    echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord" >> /etc/sudoers.d/movai
+
+USER movai
+
 # Give celery permissions to write on the celery volume
 # Give flask permissions to write on the flask volume
 RUN mkdir -p /opt/mov.ai/app/celery_data && \
-    chown movai:movai /opt/mov.ai/app/celery_data && \
-    mkdir -p /opt/mov.ai/app/flask_data && \
-    chown movai:movai /opt/mov.ai/app/flask_data
+    mkdir -p /opt/mov.ai/app/flask_data
 
 # Declare volumes for Flask and Celery databases
 VOLUME ["/opt/mov.ai/app/flask_data", "/opt/mov.ai/app/celery_data"]
 
 # Set healthcheck
 HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 CMD curl --fail http://localhost:8081/ || exit 1
+
+### Set plugin env
+ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
+ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
+
+### Set gazebo resource env
+ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
