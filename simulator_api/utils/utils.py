@@ -94,7 +94,7 @@ def subprocess_timeout_compliant(cmd, timeout=None):
             cmd, shell=True, executable="/bin/bash", check=True, capture_output=True, timeout=timeout
         )
 
-    except subprocess.TimeoutExpired as e:
+    except subprocess.TimeoutExpired:
 
         return True, 0, None
 
