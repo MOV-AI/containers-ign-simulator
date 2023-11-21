@@ -35,7 +35,7 @@ class CommunicationTest(ICommand):
         response.status_code = 200
 
         if task_id is None or task_id == "":
-            response._content = f"Celery tasks running: [{', '.join(get_running_task_ids())}]"
+            response._content = f"Celery tasks: [{', '.join(get_running_task_ids())}]"
             return response
 
         task = communication_test.AsyncResult(task_id)
