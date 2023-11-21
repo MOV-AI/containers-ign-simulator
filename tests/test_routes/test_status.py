@@ -2,12 +2,6 @@ import unittest
 from unittest import mock
 from simulator_api.entrypoint import app
 
-mock_celery_task_obj = mock.MagicMock()
-mock_celery_task_obj.id = 12345
-mock_celery_task_obj.state = "SUCCESS"
-mock_celery_task_obj.info = {'status': "SUCCESS", 'info': "hello"}
-
-
 class TestStatus(unittest.TestCase):
 
     # Bad_url should return 400
