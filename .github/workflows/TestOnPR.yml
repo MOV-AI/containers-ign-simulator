@@ -52,7 +52,7 @@ jobs:
       version: ${{ needs.CI-version.outputs.version }}
       push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
       snyk_check: true
-      platforms: linux/amd64, linux/arm64
+      platforms: linux/amd64
       build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-experimental/simple
       download_artifact: true
     secrets:
