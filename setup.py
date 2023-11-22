@@ -23,7 +23,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MOV-AI/containers-ign-simulator",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages("simulator_api"),
     include_package_data=True,
     package_data={'': ['config.ini']},
     classifiers=["Programming Language :: Python :: 3"],
