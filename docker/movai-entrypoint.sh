@@ -19,8 +19,9 @@ set -e
 printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
-export PYTHONPATH=${APP_PATH}:${MOVAI_HOME}/sdk:${PYTHONPATH}
+
+exec sudo -E /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &
 
 # if commands passed
-[ $# -gt 0 ] && exec "$@"
+[ $# -gt 0 ] && $@
 # else
