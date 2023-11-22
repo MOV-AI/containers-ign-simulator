@@ -13,7 +13,6 @@ mock_celery_task_obj.info = {'status': "SUCCESS", 'info': "hello"}
 class TestCommandTopicEcho(unittest.TestCase):
     @mock.patch('simulator_api.commands.topic_echo.echo_topic.apply_async')
     def test_post_execute_communication_test(self, mock_echo_topic_async_result):
-
         mock_echo_topic_async_result.return_value = mock_celery_task_obj
 
         input_topic = "/dummy"
@@ -31,7 +30,6 @@ class TestCommandTopicEcho(unittest.TestCase):
 
     @mock.patch('simulator_api.commands.topic_echo.echo_topic.AsyncResult')
     def test_get_execute_communication_test(self, mock_echo_topic_async_result):
-
         mock_echo_topic_async_result.return_value = mock_celery_task_obj
 
         command = TopicEcho()
@@ -44,7 +42,6 @@ class TestCommandTopicEcho(unittest.TestCase):
 
     @mock.patch('simulator_api.commands.topic_echo.echo_topic.update_state')
     def test_communication_test(self, mock_echo_topic_update):
-
         input_topic = "/dummy"
         # Expected results without ignition installed
         expected_command = f'ign topic -e -n 1 -t {input_topic}'

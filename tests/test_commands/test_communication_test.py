@@ -13,7 +13,6 @@ mock_celery_task_obj.info = {'status': "SUCCESS", 'info': "hello"}
 class TestCommandCommunicationTest(unittest.TestCase):
     @mock.patch('simulator_api.commands.communication_test.communication_test.apply_async')
     def test_post_execute_communication_test(self, mock_communincation_test_async_result):
-
         mock_communincation_test_async_result.return_value = mock_celery_task_obj
 
         command = CommunicationTest()
@@ -26,7 +25,6 @@ class TestCommandCommunicationTest(unittest.TestCase):
 
     @mock.patch('simulator_api.commands.communication_test.communication_test.AsyncResult')
     def test_get_execute_communication_test(self, mock_communincation_test_async_result):
-
         mock_communincation_test_async_result.return_value = mock_celery_task_obj
 
         command = CommunicationTest()
@@ -39,7 +37,6 @@ class TestCommandCommunicationTest(unittest.TestCase):
 
     @mock.patch('simulator_api.commands.communication_test.communication_test.update_state')
     def test_communication_test(self, mock_communication_test_update):
-
         result = communication_test()
         # Expected results without ignition installed
         self.assertEqual(result['status'], "ERROR")

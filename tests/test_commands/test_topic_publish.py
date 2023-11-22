@@ -5,7 +5,6 @@ from simulator_api.commands.topic_publish import TopicPublish
 
 class TestCommandTopicPublish(unittest.TestCase):
     def test_post_execute_topic_publish(self):
-
         input_topic = "/dummy"
         input_message = "dummy"
         input_msgtype = "dummy-type"

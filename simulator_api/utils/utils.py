@@ -100,11 +100,9 @@ def subprocess_timeout_compliant(cmd, timeout=None):
         )
 
     except subprocess.TimeoutExpired:
-
         return True, 0, None
 
     except subprocess.CalledProcessError as e:
-
         return False, e.returncode, e.stdout + e.stderr
 
     return False, cmd_ret.returncode, cmd_ret.stdout

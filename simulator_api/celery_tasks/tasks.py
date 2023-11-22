@@ -90,7 +90,6 @@ def get_task_ids():
 
     task_ids = []
     if os.path.exists(task_id_db_path):
-
         engine = sqlalchemy.create_engine(f'sqlite:///{task_id_db_path}')
         meta = sqlalchemy.MetaData()
         table = sqlalchemy.Table(task_id_table_name, meta, autoload_with=engine)

@@ -10,7 +10,6 @@ from unittest import mock
 @mock.patch('simulator_api.rest_server.exposed_methods.hello')
 class TestRoutes(unittest.TestCase):
     def test_route_hello(self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get):
-
         with app.test_client() as client:
             client.get('/')
             mock_hello.assert_called_once()
@@ -18,7 +17,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_get_call(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.get('/api/v1/dummy-command')
             expected_args = ('dummy-command', request, 'v1')
@@ -27,7 +25,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_get_call_no_version(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.get('/api/dummy-command')
             expected_args = ('dummy-command', request)
@@ -36,7 +33,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_get_status_call(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.get('/api/v1/dummy-command/1')
             expected_args = ('dummy-command', request, 'v1')
@@ -45,7 +41,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_get_status_call_no_version(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.get('/api/dummy-command/1')
             expected_args = ('dummy-command', request)
@@ -54,7 +49,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_post_call(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.post('/api/v1/dummy-command')
             expected_args = ('dummy-command', request, 'v1')
@@ -63,7 +57,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_post_call_no_version(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.post('/api/dummy-command')
             expected_args = ('dummy-command', request)
@@ -72,7 +65,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_put_call(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.put('/api/v1/dummy-command')
             expected_args = ('dummy-command', request, 'v1')
@@ -81,7 +73,6 @@ class TestRoutes(unittest.TestCase):
     def test_route_put_call_no_version(
         self, mock_hello, mock_handler_put, mock_handler_post, mock_handler_get
     ):
-
         with app.test_client() as client:
             client.put('/api/dummy-command')
             expected_args = ('dummy-command', request)
