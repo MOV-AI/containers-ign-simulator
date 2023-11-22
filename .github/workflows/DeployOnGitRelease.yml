@@ -1,13 +1,13 @@
-name: "CI - On PR"
+name: "Deploy - To Nexus On Github Release"
 on:
-  pull_request:
-    branches:
-      - "**/**"
+  release:
+    types: [released]
+
 jobs:
   CI-pip:
     uses: MOV-AI/.github/.github/workflows/py-workflow.yml@v1
     with:
-      deploy: "false"
+      release: 'true'
     secrets:
       auto_commit_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
       auto_commit_mail: ${{ secrets.RAISE_BOT_COMMIT_MAIL }}
@@ -19,7 +19,7 @@ jobs:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
       sonar_token: ${{ secrets.SONAR_TOKEN }}
 
-  CI-version:
+  CI-artifact-download:
     needs: [CI-pip]
     runs-on: ubuntu-20.04
     outputs:
@@ -31,29 +31,19 @@ jobs:
           name: packages
           path: dist
 
-      - name: Calc version
-        id: info
-        run: |
-          package_name=$(find dist -type f -name *.whl)
-          NEW_VERSIONING='[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
-          version=$(echo $package_name | grep -Eo $NEW_VERSIONING )
-          echo $version
-          echo "::set-output name=version::$version"
-
   CI-docker-noetic:
-    needs: [CI-version]
+    needs: [CI-artifact-download]
     uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v2
     with:
       docker_file: docker/Dockerfile
       docker_image: devops/ignition-gazebo
       public: true
       public_image: ce/ignition-gazebo
-      deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
-      version: ${{ needs.CI-version.outputs.version }}
-      push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
+      deploy: true
+      version: ${GITHUB_REF#refs/*/}
+      push_latest: true
       snyk_check: true
-      platforms: linux/amd64, linux/arm64
-      build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-experimental/simple
+      build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-edge/simple
       download_artifact: true
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}

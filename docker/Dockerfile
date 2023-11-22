@@ -17,6 +17,8 @@ FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.4
 # This Dockerfile is used to build the ignition
 
 ### Args
+# Arguments
+ARG PIP_PACKAGE_REPO="https://artifacts.cloud.mov.ai/repository/pypi-experimental/simple"
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/movai_ign_plugins/system
 ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
@@ -40,6 +42,7 @@ COPY ./docker/start-celery.sh /usr/local/bin/start-celery.sh
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
+
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -66,13 +69,19 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     [ -f /etc/sudoers.d/movai ] || touch /etc/sudoers.d/movai && \
     echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/bin/supervisord" >> /etc/sudoers.d/movai
 
-# Deploy application code inside the container
-COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/
-# apt-get install -y build-essential=12.8ubuntu1 --no-install-recommends && \
-RUN python3 -m pip install --no-cache-dir \
-    /tmp_packages/*.whl && \
-    rm -rf /tmp_packages/
 
+# Copy PIP package built outside docker file
+COPY dist /tmp_packages/pre-built
+
+# Deploy application code inside the container
+COPY --from=py_builder /tmp/dist/*.whl /tmp_packages/docker-built/
+
+RUN if [ -z "$(ls -A /tmp_packages/pre-built/*.whl)" ]; then INSTALL_DIR_PATH="/tmp_packages/docker-built";else INSTALL_DIR_PATH="/tmp_packages/pre-built" ; fi && \
+    python3 -m pip install --no-cache-dir \
+    --index-url="$PIP_PACKAGE_REPO" \
+    --extra-index-url https://pypi.org/simple \
+    "$INSTALL_DIR_PATH"/*.whl && \
+    rm -rf /tmp_packages
 
 USER movai
 

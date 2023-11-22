@@ -1,13 +1,15 @@
-name: "CI - On PR"
+name: "Deploy - On branch main/release Push"
 on:
-  pull_request:
+  push:
     branches:
-      - "**/**"
+      - main
+      - 'releases/**'
+
 jobs:
   CI-pip:
     uses: MOV-AI/.github/.github/workflows/py-workflow.yml@v1
     with:
-      deploy: "false"
+      deploy: 'true'
     secrets:
       auto_commit_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
       auto_commit_mail: ${{ secrets.RAISE_BOT_COMMIT_MAIL }}
@@ -48,12 +50,11 @@ jobs:
       docker_image: devops/ignition-gazebo
       public: true
       public_image: ce/ignition-gazebo
-      deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
+      deploy: true
       version: ${{ needs.CI-version.outputs.version }}
-      push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
+      push_latest: true
       snyk_check: true
-      platforms: linux/amd64, linux/arm64
-      build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-experimental/simple
+      build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-integration/simple
       download_artifact: true
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}

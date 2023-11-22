@@ -3,6 +3,7 @@
 !scripts/
 !resources/
 !simulator_api/
+!dist/
 !LICENSE
 !README.md
 !setup.py
