@@ -1,0 +1,10 @@
+*
+!docker/
+!scripts/
+!resources/
+!simulator_api/
+!dist/
+!LICENSE
+!README.md
+!setup.py
+!build-requirements.txt

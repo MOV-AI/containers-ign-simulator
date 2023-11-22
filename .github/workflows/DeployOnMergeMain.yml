@@ -1,0 +1,66 @@
+name: "Deploy - On branch main/release Push"
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
+
+jobs:
+  CI-pip:
+    uses: MOV-AI/.github/.github/workflows/py-workflow.yml@v1
+    with:
+      deploy: 'true'
+    secrets:
+      auto_commit_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
+      auto_commit_mail: ${{ secrets.RAISE_BOT_COMMIT_MAIL }}
+      auto_commit_password: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}
+      registry_user: ${{ secrets.PORTUS_APP_USER }}
+      registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      nexus_publisher_user: ${{ secrets.NEXUS_PUBLISHER_USR }}
+      nexus_publisher_password: ${{ secrets.NEXUS_PUBLISHER_PWD }}
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+
+  CI-version:
+    needs: [CI-pip]
+    runs-on: ubuntu-20.04
+    outputs:
+      version: ${{ steps.info.outputs.version }}
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: dist
+
+      - name: Calc version
+        id: info
+        run: |
+          package_name=$(find dist -type f -name *.whl)
+          NEW_VERSIONING='[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
+          version=$(echo $package_name | grep -Eo $NEW_VERSIONING )
+          echo $version
+          echo "::set-output name=version::$version"
+
+  CI-docker-noetic:
+    needs: [CI-version]
+    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v2
+    with:
+      docker_file: docker/Dockerfile
+      docker_image: devops/ignition-gazebo
+      public: true
+      public_image: ce/ignition-gazebo
+      deploy: true
+      version: ${{ needs.CI-version.outputs.version }}
+      push_latest: true
+      snyk_check: true
+      build_args: PIP_PACKAGE_REPO=https://artifacts.cloud.mov.ai/repository/pypi-integration/simple
+      download_artifact: true
+    secrets:
+      registry_user: ${{ secrets.PORTUS_APP_USER }}
+      registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      pub_registry_user: ${{ secrets.PORTUS_APP_USER }}
+      pub_registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      github_registry_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
+      github_registry_password: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}
+      snyk_token: ${{ secrets.SNYK_TOKEN }}
