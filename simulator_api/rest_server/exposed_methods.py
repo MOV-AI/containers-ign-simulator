@@ -23,7 +23,9 @@ def hello():
     """Function simply to provide a responde if you call the root of the local service. Only works in local mode."""
     return {
         "statusCode": 200,
-        "body": json.dumps({"message": "Sucess. Now use 'api/get-capabilities' to know the available commands."}),
+        "body": json.dumps(
+            {"message": "Sucess. Now use 'api/get-capabilities' to know the available commands."}
+        ),
     }
 
 

@@ -22,7 +22,9 @@ class TestCommandTopicEcho(unittest.TestCase):
         command = TopicEcho()
 
         # put request
-        response = command.post_execute_latest({"topic": input_topic, "timeout": input_timeout}, None, None)
+        response = command.post_execute_latest(
+            {"topic": input_topic, "timeout": input_timeout}, None, None
+        )
         mock_echo_topic_async_result.assert_called_once()
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, {'task_id': 12345})

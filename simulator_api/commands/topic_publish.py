@@ -69,8 +69,19 @@ class TopicPublish(ICommand):
 
         logging.debug("Topic publish command reached")
 
-        topic, message, msgtype = url_params.get("topic"), url_params.get("message"), url_params.get("msgtype")
-        if topic is None or topic == "" or message is None or message == "" or msgtype is None or msgtype == "":
+        topic, message, msgtype = (
+            url_params.get("topic"),
+            url_params.get("message"),
+            url_params.get("msgtype"),
+        )
+        if (
+            topic is None
+            or topic == ""
+            or message is None
+            or message == ""
+            or msgtype is None
+            or msgtype == ""
+        ):
             raise InvalidInputException()
         if topic[0] != "/":
             raise BadRequest(f"Not valid topic: {topic}")

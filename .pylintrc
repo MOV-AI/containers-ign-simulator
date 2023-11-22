@@ -6,4 +6,4 @@ ignore-patterns=.*_test.*?py,.*test_.*?py,.*test.*?py,.*pb2.*,.*yml, .*toml, .*t
 ignore-long-lines=^import\s.+|^from\s.+
 
 [FORMAT]
-max-line-length=120
+max-line-length=100

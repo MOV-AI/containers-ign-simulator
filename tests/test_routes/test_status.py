@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from simulator_api.entrypoint import app
 
+
 class TestStatus(unittest.TestCase):
 
     # Bad_url should return 400
@@ -58,7 +59,9 @@ class TestStatus(unittest.TestCase):
 
             response = client.post(f'/api/v1/communication-test?{bad_param_interval_timeout}')
             self.assertEqual(response.status_code, 400)
-            self.assertIn("Timeout larger than maximum allowed (15): ", response.data.decode('utf-8'))
+            self.assertIn(
+                "Timeout larger than maximum allowed (15): ", response.data.decode('utf-8')
+            )
 
     # Bad parameters should return 400 Bad Request
     def test_status_post_call_echo_topic_bad_params(self):
@@ -75,7 +78,9 @@ class TestStatus(unittest.TestCase):
 
             response = client.post(f'/api/v1/topic-echo?{bad_param_interval_timeout}')
             self.assertEqual(response.status_code, 400)
-            self.assertIn("Timeout larger than maximum allowed (15): ", response.data.decode('utf-8'))
+            self.assertIn(
+                "Timeout larger than maximum allowed (15): ", response.data.decode('utf-8')
+            )
 
     # Bad parameters should return 400 Bad Request
     def test_status_post_call_publish_topic_bad_params(self):

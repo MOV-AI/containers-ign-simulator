@@ -42,7 +42,9 @@ class CommunicationTest(ICommand):
 
         if task.state == 'PENDING':
             if task.id in [item.split()[0] for item in get_task_ids()]:
-                raise NotFound(f"Resource with task ID {task_id} not found, but task waiting to be run.")
+                raise NotFound(
+                    f"Resource with task ID {task_id} not found, but task waiting to be run."
+                )
             else:
                 raise NotFound(f"Task ID {task_id} not found.")
         elif task.state != 'FAILURE':
@@ -99,9 +101,13 @@ class CommunicationTest(ICommand):
                 except ValueError:
                     raise BadRequest(f"Not valid timeout: {duration}")
                 if duration > max_timeout:
-                    raise BadRequest(f"Timeout larger than maximum allowed ({max_timeout}): {duration}")
+                    raise BadRequest(
+                        f"Timeout larger than maximum allowed ({max_timeout}): {duration}"
+                    )
 
-            task = communication_test.apply_async(args=(echo_topic, publish_topic, world_name, duration))
+            task = communication_test.apply_async(
+                args=(echo_topic, publish_topic, world_name, duration)
+            )
 
         response = requests.Response()
         response._content = {'task_id': task.id}

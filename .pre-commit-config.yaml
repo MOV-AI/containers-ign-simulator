@@ -18,7 +18,7 @@ repos:
     rev: 22.12.0
     hooks:
     - id: black
-      args: ["--line-length=120", "-S"]
+      args: ["--line-length=100", "-S"]
 
   - repo: https://github.com/pycqa/flake8   # static tests Python code
     rev: 6.0.0

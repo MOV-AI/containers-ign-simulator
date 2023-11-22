@@ -53,7 +53,9 @@ def container_exec_cmd(cmd, timeout=None, checklist=None):
         logging.debug(message)
     elif exitcode != 0:
         task_status = 'ERROR'
-        message = f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}."
+        message = (
+            f"The command '{cmd}' returned a non-zero exit status: {exitcode}. Output: {result}."
+        )
         logging.debug(message)
     else:
         message = f"The command '{cmd}' ran succesfully. Output: {result}."
@@ -89,7 +91,12 @@ def subprocess_timeout_compliant(cmd, timeout=None):
         # the timeout expires.
 
         cmd_ret = subprocess.run(
-            cmd, shell=True, executable="/bin/bash", check=True, capture_output=True, timeout=timeout
+            cmd,
+            shell=True,
+            executable="/bin/bash",
+            check=True,
+            capture_output=True,
+            timeout=timeout,
         )
 
     except subprocess.TimeoutExpired:

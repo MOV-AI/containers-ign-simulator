@@ -10,7 +10,9 @@ class TestCommandTopicPublish(unittest.TestCase):
         input_message = "dummy"
         input_msgtype = "dummy-type"
         # Expected results without ignition installed
-        expected_command = f'ign topic -p \"{input_message}\" -t {input_topic} --msgtype {input_msgtype}'
+        expected_command = (
+            f'ign topic -p \"{input_message}\" -t {input_topic} --msgtype {input_msgtype}'
+        )
         expected_status = "ERROR"
         expected_exitcode = 127  # command not found
 
