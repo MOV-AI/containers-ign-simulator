@@ -16,14 +16,14 @@ requirements = [
 
 setuptools.setup(
     name="simulator_api",
-    version="0.0.1-1",
+    version="1.0.0-1",
     author="Devops team",
     author_email="devops@mov.ai",
     description="Simulator web service",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MOV-AI/containers-ign-simulator",
-    packages=setuptools.find_packages("."),
+    packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={'': ['config.ini']},
     classifiers=["Programming Language :: Python :: 3"],
