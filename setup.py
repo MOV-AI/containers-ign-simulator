@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 requirements = [
-    "flask==2.1.2",
+    "flask==2.2.5",
     "requests==2.22.0",
     "werkzeug==2.0",
     "webservercore==1.1.0.4",
