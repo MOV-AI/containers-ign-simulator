@@ -39,6 +39,7 @@ ENV RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq.pid
 # Copy runtime scripts and configuration files
 COPY ./docker/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 COPY ./docker/start-celery.sh /usr/local/bin/start-celery.sh
+COPY ./docker/celery-health-check.sh /usr/local/bin/celery-health-check.sh
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
@@ -63,7 +64,7 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep && \
 ### Make scripts executable
-    chmod +x /usr/local/bin/start-celery.sh && \
+    chmod +x /usr/local/bin/start-celery.sh /usr/local/bin/celery-health-check.sh && \
 ### Add experimental repositories to pip
     /usr/local/bin/setup-pypi-env.sh INT && \
 ### Allow movai user to run supervisord as root
