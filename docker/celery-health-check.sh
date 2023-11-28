@@ -6,6 +6,3 @@ if ping="$(celery -A simulator_api.celery_tasks.tasks.celery_instance inspect pi
 fi
 
 exit 1
-
-
-
