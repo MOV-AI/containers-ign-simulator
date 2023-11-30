@@ -22,7 +22,7 @@ def parse_config():
     cfg.read(config_path)
 
     # Check mandatory configuration variables
-    mandatory_vars = ["topic_spawner", "topic_sim", "ignition_base_topics", "world_name"]
+    mandatory_vars = ["topic_to_echo", "topic_to_publish", "ignition_base_topics", "world_name"]
     for var in mandatory_vars:
         if cfg.get("communication", var) is None:
             raise ValueError(f"Missing mandatory configuration variable: {var}")

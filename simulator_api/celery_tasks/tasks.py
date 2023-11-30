@@ -128,8 +128,17 @@ def echo_topic(topic, timeout):
 
 
 @celery_instance.task()
-def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, duration=None):
+def communication_test(
+    topic_to_echo=None, topic_to_publish=None, world=None, duration=None, nb_retries=5
+):
     """Handles communication test inside the container.
+
+    Args:
+        topic_to_echo (string): Name of the topic to echo from simulator
+        topic_to_publish (string): Name of the topic to publish from simulator
+        world (string): Name of the world to check.
+        duration (int): Timeout duration of echo command.
+        nb_retries (int): Number of times to publish the same topic from spawner. Default is 5.
 
     Returns:
         dict: Task json specifying the status of the communication test.
@@ -147,12 +156,12 @@ def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, du
 
     # Retrieve communication variables
     topic_to_echo = (
-        cfg.get("communication", "topic_spawner")
+        cfg.get("communication", "topic_to_echo")
         if (topic_to_echo is None or topic_to_echo == "")
         else topic_to_echo
     )
     topic_to_publish = (
-        cfg.get("communication", "topic_sim")
+        cfg.get("communication", "topic_to_publish")
         if (topic_to_publish is None or topic_to_publish == "")
         else topic_to_publish
     )
@@ -165,15 +174,17 @@ def communication_test(topic_to_echo=None, topic_to_publish=None, world=None, du
 
     # Run communication smoke tests
 
-    # Test sim to spawner communication through topic /test_from_sim (spawner must be listening to this topic)
-    cmd = f'ign topic -p "data:\"test\"" -t {topic_to_echo} --msgtype ignition.msgs.StringMsg'
-    check_list = container_exec_cmd(cmd, checklist=check_list)
+    # Test simulator to spawner communication through topic_to_publish (spawner must be listening to this topic)
+    cmd = f'ign topic -p "data:\"test\"" -t {topic_to_publish} --msgtype ignition.msgs.StringMsg'
+    # Patch loop to ensure that the topic will be catched in spawner
+    for _ in range(nb_retries):
+        check_list = container_exec_cmd(cmd, checklist=check_list)
     communication_test.update_state(
         state='PROGRESS', meta={'status': status, 'checklist': check_list}
     )
 
-    # Test spawner to sim communication through topic /test_from_spawner (spawner must be publishing this topic)
-    cmd = f"ign topic -e -n 1 -t {topic_to_publish}"
+    # Test spawner to sim communication through topic_to_echo (spawner must be publishing this topic)
+    cmd = f"ign topic -e -n 1 -t {topic_to_echo}"
     check_list = container_exec_cmd(cmd, timeout=timeout, checklist=check_list)
     communication_test.update_state(
         state='PROGRESS', meta={'status': status, 'checklist': check_list}
