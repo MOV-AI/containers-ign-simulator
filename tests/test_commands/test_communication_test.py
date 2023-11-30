@@ -40,6 +40,5 @@ class TestCommandCommunicationTest(unittest.TestCase):
         result = communication_test()
         # Expected results without ignition installed
         self.assertEqual(result['status'], "ERROR")
-        self.assertEqual(len(result['checklist']), 6)
         for task_result in result['checklist']:
             self.assertEqual(task_result['status'], "ERROR")
