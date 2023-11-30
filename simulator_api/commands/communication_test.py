@@ -100,9 +100,9 @@ class CommunicationTest(ICommand):
                     duration = int(duration)
                 except ValueError:
                     raise BadRequest(f"Not valid timeout: {duration}")
-                if duration > max_timeout:
+                if duration > max_timeout or duration < 0:
                     raise BadRequest(
-                        f"Timeout larger than maximum allowed ({max_timeout}): {duration}"
+                        f"Timeout negative or larger than maximum allowed ({max_timeout}): {duration}"
                     )
 
             task = communication_test.apply_async(

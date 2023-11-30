@@ -55,7 +55,7 @@ class TestStatus(unittest.TestCase):
             response = client.post(f'/api/v1/communication-test?{bad_param_interval_timeout}')
             self.assertEqual(response.status_code, 400)
             self.assertIn(
-                "Timeout larger than maximum allowed (15): ", response.data.decode('utf-8')
+                "Timeout negative or larger than maximum allowed (15): ", response.data.decode('utf-8')
             )
 
     # Bad parameters should return 400 Bad Request
