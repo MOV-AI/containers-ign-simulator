@@ -66,8 +66,8 @@ If a get request is succesful, the response of every endpoint is a json, which a
 The communication test endpoint's purpose is to perform a series of communication tasks to check communication between the simulator container and the host where the tests are being requested. To achieve this goal, the endpoint offers two call methods:
 - a `POST` method to start the series of comm tests, which returns a task id and can be called with or without arguments as follows:
     - `POST /api/communication-test`, in which case the followings parameters are set as default:
-        - echo_topic = /test_from_spawner
-        - publish_topic = /test_from_sim
+        - echo_topic =  /test_from_spawner_to_simulator
+        - publish_topic = /test_from_simulator_to_spawner
         - world_name = empty
         - timeout = 5
     - `POST /api/communication-test?echo-topic=FILL&publish-topic=FILL&world-name=FILL&timeout=FILL`, in which case you can specify the topics to echo and publish, the world to verify and the duration of the echo.
