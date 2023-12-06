@@ -54,7 +54,8 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
     apt-get update && \
 ### Install ignition-fortress
-    apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
+    apt-get update && apt-get install gz-garden=1.0.0-1~focal -y --no-install-recommends && \
+    ln -sf /usr/bin/gz /usr/bin/ign && \
 ## Install messaging broker for async calls, supervisord and gunicorn
     apt-get install -y gnupg=2.2.19-3ubuntu2.2  apt-transport-https=2.0.2 rabbitmq-server=3.8.2-0ubuntu1 supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
     apt-get clean && \
