@@ -1,14 +1,14 @@
-[![Build&Deploy MOVAI Ignition Gazebo](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml/badge.svg?branch=main)](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml)
+[![Build&Deploy MOVAI Ignition Gazebo](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml/badge.svg?branch=releases/2.4.0)](https://github.com/MOV-AI/containers-ign-simulator/actions/workflows/docker-ci.yml)
 
 # MOVAI Ignition Gazebo Container
 
-Ignition Simulator Docker image for MOV.AI Framework
+Ignition Simulator Docker image for MOV.AI Framework based on Ubuntu 20.04 (focal) and Ignition Fortress.
 
 Image is built as follow :
 
 | Flavour      | Base Image | IGN |
 | ------------ | ---------- | ------ |
-| ignition-fortress | movai-base-focal:v2.4.3 | 1.0.3-1 |
+| ignition-fortress | ignition-gazebo:v2.4.1 | 1.0.3-1 |
 
 
 
