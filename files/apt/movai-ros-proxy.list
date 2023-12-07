@@ -1,16 +1,4 @@
-# Add focal proxy
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal focal universe
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal focal multiverse
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal focal main
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal focal restricted
-# Add focal-updates proxy
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-updates focal-updates universe
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-updates focal-updates multiverse
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-updates focal-updates main
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-updates focal-updates restricted
-# Add focal-backports proxy
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-backports focal-backports universe
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-backports focal-backports multiverse
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-backports focal-backports main
-# Add backup of focal-archive
-deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-archive-focal-backup focal-backup main
+# Add ROS proxy
+deb [signed-by=/usr/share/keyrings/ros.key] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-ros focal main
+#Add ROS proxy backup
+deb [arch=amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-ros-backup ros-backup main
