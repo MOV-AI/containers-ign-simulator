@@ -1,38 +1,17 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
-FROM ${DOCKER_REGISTRY}/ce/movai-base-focal:v2.4.4
-# This Dockerfile is used to build the ignition
+FROM ${DOCKER_REGISTRY}/ce/ignition-gazebo:v2.4.1
+# This version is the latest stable version of ignition packages
 
-### Args
-ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH=/movai_ign_plugins/system
-ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
-ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
-ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
-ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
+# Freeze ignition packages in their current version
+RUN pks=$(apt list --installed *ign* 2>/dev/null | awk -F'[/ ]' '{print $1}') && \
+    for pk in $pks; do apt-mark hold $pk; done
 
-ENV MOVAI_ENV="release"
+# Apply proxy changes of base image v2.4.4 into container
+COPY files/apt/movai-ubuntu-archive-proxy.list /etc/apt/sources.list.d/movai-ubuntu-archive-proxy.list
+COPY files/apt/movai-ubuntu-ports-proxy.list /etc/apt/sources.list.d/movai-ubuntu-ports-proxy.list
+COPY files/apt/movai-ros-proxy.list /etc/apt/sources.list.d/movai-ros-proxy.list
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Copy runtime scripts
-COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
-
-### Install ignition-fortress
-RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null  && \
-    echo "Package: *" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin: origin packages.osrfoundation.org" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
-    apt-get update && \
-    apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
-    mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
-    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
-
-### Set plugin env
-ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
-ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
-
-### Set gazebo resource env
-ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
+RUN if [ "$(uname -m)" = "x86_64" ] ; then rm /etc/apt/sources.list.d/movai-ubuntu-ports-proxy.list ; fi &&\ 
+    if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "armv7l" ] ; then rm /etc/apt/sources.list.d/movai-ubuntu-archive* && rm /etc/apt/sources.list.d/movai-ubuntu-security* ; fi &&\ 
+    apt-get update && apt-get upgrade -y
