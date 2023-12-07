@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - releases/*
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,4 +17,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         DEFAULT_BUMP: patch
-        RELEASE_BRANCHES: main
+        RELEASE_BRANCHES: main, releases/*
