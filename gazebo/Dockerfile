@@ -11,10 +11,8 @@ COPY files/apt/movai-ubuntu-archive-proxy.list /etc/apt/sources.list.d/movai-ubu
 COPY files/apt/movai-ubuntu-ports-proxy.list /etc/apt/sources.list.d/movai-ubuntu-ports-proxy.list
 COPY files/apt/movai-ros-proxy.list /etc/apt/sources.list.d/movai-ros-proxy.list
 
-ARG APT_REPOSITORY="https://artifacts.aws.cloud.mov.ai/repository"
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | gpg --dearmor -o /usr/share/keyrings/ros.key
-RUN if [ "$(uname -m)" = "x86_64" ] ; then rm /etc/apt/sources.list.d/movai-ubuntu-ports-proxy.list ; fi &&\ 
+RUN curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | gpg --dearmor -o /usr/share/keyrings/ros.key && \
+    if [ "$(uname -m)" = "x86_64" ] ; then rm /etc/apt/sources.list.d/movai-ubuntu-ports-proxy.list ; fi &&\ 
     if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "armv7l" ] ; then rm /etc/apt/sources.list.d/movai-ubuntu-archive* && rm /etc/apt/sources.list.d/movai-ubuntu-security* ; fi &&\ 
     apt-get update && apt-get upgrade -y
