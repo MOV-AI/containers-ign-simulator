@@ -8,6 +8,7 @@ ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
 ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
 ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
+ARG APT_REPOSITORY="https://artifacts.aws.cloud.mov.ai/repository"
 
 ENV MOVAI_ENV="release"
 
@@ -22,8 +23,16 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     echo "Package: *" >> /etc/apt/preferences.d/ros-gazebo && \
     echo "Pin: origin packages.osrfoundation.org" >> /etc/apt/preferences.d/ros-gazebo && \
     echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
+### Add ppa-public
+    curl -fsSL "$APT_REPOSITORY/movai-applications/gpg" | apt-key add - && \
+    add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
     apt-get update && \
     apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
+### Substitute ignition-sensors libraries by patched version
+    pks=$(apt list --installed libignition-sensors6* 2>/dev/null | awk -F'[/ ]' '{print $1}' | grep lib) && \
+    for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
+    apt-get download movai-ignition-sensors6=2.7.1-2 && \
+    dpkg -i ./*.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
