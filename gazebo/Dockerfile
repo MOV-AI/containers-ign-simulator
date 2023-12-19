@@ -18,12 +18,16 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 ### Add apt repositories
-RUN curl -fsSL $APT_REPOSITORY/movai-applications/gpg | apt-key add - && \
+RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/gazebo.gpg && \
+    echo "deb  [signed-by=/usr/share/keyrings/gazebo.gpg] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-gazebo focal main" | tee /etc/apt/sources.list.d/movai-gazebo.list > /dev/null && \
+    curl -fsSL $APT_REPOSITORY/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
     add-apt-repository "deb [arch=amd64] $APT_REPOSITORY/ppa-proxy-gazebo-backup gazebo-backup main" && \
+### Install mobros    
+    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros && \
     apt-get update && \
-### Install ignition-fortress
-    apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \ 
+### Install ignition-fortress using mobros
+    mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1 -y && \ 
 ### Substitute ignition-sensors libraries by patched version
     pks=$(apt list --installed libignition-sensors6* 2>/dev/null | awk -F'[/ ]' '{print $1}' | grep lib) && \
     for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
