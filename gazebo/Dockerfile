@@ -23,8 +23,9 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     curl -fsSL $APT_REPOSITORY/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
     add-apt-repository "deb [arch=amd64] $APT_REPOSITORY/ppa-proxy-gazebo-backup gazebo-backup main" && \
-### Install mobros    
-    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros && \
+### Install mobros 
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.0.8 && \
     apt-get update && \
 ### Install ignition-fortress using mobros
     mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1 -y && \ 
