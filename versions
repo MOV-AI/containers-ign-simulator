@@ -1,0 +1,16 @@
+libignition-cmake2-dev/unknown,now 2.17.1-1~focal
+libignition-common4/unknown,now 4.7.0-1~focal
+libignition-fuel-tools7/unknown,now 7.3.0-1~focal
+libignition-gazebo6/unknown,now 6.15.0-1~focal
+libignition-gui6/unknown,now 6.8.0-1~focal
+libignition-launch5/unknown,now 5.3.0-1~focal
+libignition-math6/unknown,now 6.15.0-1~focal
+libignition-msgs8/unknown,now 8.7.0-1~focal
+libignition-physics5/unknown,now 5.3.2-1~focal
+libignition-plugin/unknown,now 1.4.0-1~focal
+libignition-rendering6/unknown,now 6.6.2-1~focal
+libignition-sensors6/unknown,now 6.7.1-1~focal
+libignition-tools-dev/unknown,now 1.5.0-1~focal
+libignition-transport11/unknown,now 11.4.1-1~focal
+libignition-utils1/unknown,now 1.5.1-1~focal
+sdformat12-sdf/unknown,now 12.7.2-1~focal
