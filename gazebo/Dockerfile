@@ -31,7 +31,7 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
 ### Substitute ignition-sensors libraries by patched version
     pks=$(apt list --installed libignition-sensors6* 2>/dev/null | awk -F'[/ ]' '{print $1}' | grep lib) && \
     for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
-    apt download movai-ignition-sensors6=2.7.1-2 && \
+    apt-get download movai-ignition-sensors6=2.7.1-2 && \
     dpkg -i ./movai-ignition-sensors6_2.7.1-2_all.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \

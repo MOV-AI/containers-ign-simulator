@@ -8,13 +8,13 @@ on:
     branches:
       - main
       - dev
-      - releases/*
     tags:
       - 'v*.*.*'
   pull_request:
     branches:
       - main
       - dev
+      - releases/*
   release:
     types: [released]
 jobs:
