@@ -18,7 +18,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 ### Add apt repositories
-RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/gazebo.gpg && \
+RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /usr/share/keyrings/gazebo.gpg && \
     echo "deb  [signed-by=/usr/share/keyrings/gazebo.gpg] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-gazebo focal main" | tee /etc/apt/sources.list.d/movai-gazebo.list > /dev/null && \
     curl -fsSL $APT_REPOSITORY/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
