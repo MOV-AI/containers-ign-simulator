@@ -28,7 +28,7 @@ RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /u
     python3 -m pip install -i "https://artifacts.cloud.mov.ai/repository/pypi-edge/simple" --extra-index-url "https://pypi.org/simple" --no-cache-dir mobros==2.1.0.8 && \
     apt-get update && \
 ### Install ignition-fortress using mobros
-    mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1 -y && \ 
+    mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1=2.2.11-1ubuntu1 -y && \ 
 ### Substitute ignition-sensors libraries by patched version
     pks=$(apt list --installed libignition-sensors6* 2>/dev/null | awk -F'[/ ]' '{print $1}' | grep lib) && \
     for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
