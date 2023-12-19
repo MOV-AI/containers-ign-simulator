@@ -20,12 +20,12 @@ COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 ### Add apt repositories
 RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /usr/share/keyrings/gazebo.gpg && \
     echo "deb  [signed-by=/usr/share/keyrings/gazebo.gpg] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-gazebo focal main" | tee /etc/apt/sources.list.d/movai-gazebo.list > /dev/null && \
-    curl -fsSL $APT_REPOSITORY/movai-applications/gpg | apt-key add - && \
+    curl -fsSL "$APT_REPOSITORY/movai-applications/gpg" | apt-key add - && \
     add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
     add-apt-repository "deb [arch=amd64] $APT_REPOSITORY/ppa-proxy-gazebo-backup gazebo-backup main" && \
 ### Install mobros 
     python3 -m pip install --upgrade pip && \
-    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.0.8 && \
+    python3 -m pip install -i "https://artifacts.cloud.mov.ai/repository/pypi-edge/simple" --extra-index-url "https://pypi.org/simple" --no-cache-dir mobros==2.1.0.8 && \
     apt-get update && \
 ### Install ignition-fortress using mobros
     mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1 -y && \ 
