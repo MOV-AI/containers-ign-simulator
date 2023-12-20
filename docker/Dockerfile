@@ -58,6 +58,8 @@ RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /u
     python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir && \
     python3 -m pip install -i "https://artifacts.cloud.mov.ai/repository/pypi-edge/simple" --extra-index-url "https://pypi.org/simple" --no-cache-dir mobros==2.1.0.8 && \
     apt-get update && \
+## Install messaging broker for async calls, supervisord and gunicorn
+    apt-get install -y gnupg=2.2.19-3ubuntu2.2  apt-transport-https=2.0.2 rabbitmq-server=3.8.2-0ubuntu1 supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
 ### Install ignition-fortress using mobros
     mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1=2.2.11-1ubuntu1 -y && \ 
 ### Substitute ignition-sensors libraries by patched version
@@ -65,8 +67,6 @@ RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /u
     for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
     apt-get download movai-ignition-sensors6=2.7.1-2 && \
     dpkg -i ./movai-ignition-sensors6_2.7.1-2_all.deb && \
-## Install messaging broker for async calls, supervisord and gunicorn
-    apt-get install -y gnupg=2.2.19-3ubuntu2.2  apt-transport-https=2.0.2 rabbitmq-server=3.8.2-0ubuntu1 supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
