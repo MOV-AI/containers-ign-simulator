@@ -3,64 +3,64 @@ repositories:
   gz-cmake:
     type: git
     url: https://github.com/gazebosim/gz-cmake
-    version: ign-cmake2_2.17.1
+    version: ignition-cmake2_2.17.1
   gz-common:
     type: git
     url: https://github.com/gazebosim/gz-common
-    version: ign-common4_4.7.0
+    version: ignition-common4_4.7.0
   gz-fuel-tools:
     type: git
     url: https://github.com/gazebosim/gz-fuel-tools
-    version: ign-fuel-tools7_7.3.0
+    version: ignition-fuel-tools7_7.3.0
   gz-sim:
     type: git
     url: https://github.com/gazebosim/gz-sim
-    version: ign-gazebo6_6.15.0
+    version: ignition-gazebo6_6.15.0
   gz-gui:
     type: git
     url: https://github.com/gazebosim/gz-gui
-    version: ign-gui6_6.8.0
+    version: ignition-gui6_6.8.0
   gz-launch:
     type: git
     url: https://github.com/gazebosim/gz-launch
-    version: ign-launch5_5.3.0
+    version: ignition-launch5_5.3.0
   gz-math:
     type: git
     url: https://github.com/gazebosim/gz-math
-    version: ign-math6_6.15.0
+    version: ignition-math6_6.15.0
   gz-msgs:
     type: git
     url: https://github.com/gazebosim/gz-msgs
-    version: ign-msgs8_8.7.0
+    version: ignition-msgs8_8.7.0
   gz-physics:
     type: git
     url: https://github.com/gazebosim/gz-physics
-    version: ign-physics5_5.3.2
+    version: ignition-physics5_5.3.2
   gz-plugin:
     type: git
     url: https://github.com/gazebosim/gz-plugin
-    version: ign-plugin1_1.4.0
+    version: ignition-plugin_1.4.0
   gz-rendering:
     type: git
     url: https://github.com/gazebosim/gz-rendering
-    version: ign-rendering6_6.6.2
+    version: ignition-rendering6_6.6.2
   gz-sensors:
     type: git
     url: https://github.com/gazebosim/gz-sensors
-    version: ign-sensors6_6.7.1
+    version: ignition-sensors6_6.7.1
   gz-tools:
     type: git
     url: https://github.com/gazebosim/gz-tools
-    version: ign-tools1_1.5.0
+    version: ignition-tools_1.5.0
   gz-transport:
     type: git
     url: https://github.com/gazebosim/gz-transport
-    version: ign-transport11_11.4.1
+    version: ignition-transport11_11.4.1
   gz-utils:
     type: git
     url: https://github.com/gazebosim/gz-utils
-    version: ign-utils1_1.5.1
+    version: ignition-utils1_1.5.1
   sdformat:
     type: git
     url: https://github.com/gazebosim/sdformat
-    version: sdf12_12.7.2
+    version: sdformat12_12.7.2

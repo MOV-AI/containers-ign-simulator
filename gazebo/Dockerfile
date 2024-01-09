@@ -16,6 +16,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Copy runtime scripts
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
+COPY ./gazebo/generate-collection-fortress.bash /usr/local/bin/generate-collection-fortress.bash
 
 ### Add apt repositories
 RUN apt-get install python3-pip wget lsb-release gnupg curl && \
@@ -24,21 +25,33 @@ RUN apt-get install python3-pip wget lsb-release gnupg curl && \
     export PATH=$PATH:$HOME/.local/bin/ && \
     apt-get install git
 
-RUN mkdir -p ~/workspace/src && cd ~/workspace/src && \
-    wget https://raw.githubusercontent.com/ignition-tooling/gazebodistro/master/collection-fortress.yaml && \
-    vcs import < collection-fortress.yaml
+RUN mkdir -p ./workspace/src && \
+    sudo add-apt-repository ppa:rmescandon/yq && \
+    sudo apt update && \
+    sudo apt -y --no-install-recommends install yq
+
+WORKDIR ./workspace/src
+
+COPY ./gazebo/collection-fortress-12-23.yaml fixed-collection-fortress.yaml
+
+RUN /usr/local/bin/generate-collection-fortress.bash 
+
+RUN vcs import < fixed-collection-fortress.yaml
 
 RUN wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
-    apt-get update
+    sudo apt-get update
 
-RUN cd ~/workspace/src && \
-    sudo apt -y install \
+RUN sudo apt -y install \
     $(sort -u $(find . -iname 'packages-'`lsb_release -cs`'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/ignition\|sdf/d' | tr '\n' ' ')
 
-RUN cd ~/workspace/ && \
-    colcon graph && \
-    colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
+WORKDIR ../
+
+RUN colcon graph
+
+RUN colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
+
+WORKDIR ../
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
