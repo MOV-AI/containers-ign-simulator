@@ -48,7 +48,6 @@ RUN wget --progress=dot:giga https://packages.osrfoundation.org/gazebo.gpg -O /u
 RUN cd workspace && \
     colcon graph && \
     colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
-
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
