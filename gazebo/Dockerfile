@@ -10,6 +10,8 @@ ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
 ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
 ARG APT_REPOSITORY="https://artifacts.aws.cloud.mov.ai/repository"
 
+ARG LATEST_COMPONENTS=()
+
 ENV MOVAI_ENV="release"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -33,7 +35,7 @@ RUN wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pk
     mkdir -p workspace/src && \
     cd workspace/src && \
 ### Generate fortress collection
-    /usr/local/bin/generate-collection-fortress.bash "gz-sensors" && \
+    /usr/local/bin/update-collection-fortress-to-latest.bash $LATEST_COMPONENTS && \
 ### Import source code
     vcs import < /usr/local/bin/fixed-collection-fortress.yaml && \
 ### Install ignition fortress requirements

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+    echo "No arguments provided for update"
+    exit 0
+fi
+
+
 yaml_fixed="/usr/local/bin/fixed-collection-fortress.yaml"
 yaml_latest="latest-collection-fortress.yaml"
 
