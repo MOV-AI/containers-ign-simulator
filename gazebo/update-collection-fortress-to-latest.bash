@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 
-yaml_fixed="/usr/local/bin/fixed-collection-fortress.yaml"
+yaml_fixed="fixed-collection-fortress.yaml"
 yaml_latest="latest-collection-fortress.yaml"
 
 # Download latest collection-fortress yaml
