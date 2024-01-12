@@ -31,9 +31,9 @@ RUN ./update-collection-fortress-to-latest.bash "${LATEST_COMPONENTS[@]}" && \
 ### Install ignition fortress requirements
     echo "$(sort -u $(find . -iname 'packages-'$(lsb_release -cs)'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/ignition\|sdf/d' | tr '\n' ' ')" > requirements.txt && \
     apt-get -y --no-install-recommends install \
-    "$(cat requirements.txt)" && \
+    $(cat requirements.txt) && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf "/var/lib/apt/lists/*"
 
 WORKDIR /opt/mov.ai/app/workspace
 
@@ -66,9 +66,9 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
     apt-get update && \
     apt-get -y --no-install-recommends install \
-    "$(cat workspace/src/requirements.txt)" && \
+    $(cat workspace/src/requirements.txt) && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf "/var/lib/apt/lists/*"
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
