@@ -14,7 +14,7 @@ RUN mkdir -p workspace/src && \
     wget --progress=dot:giga -O - "https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc" | apt-key add - && \
     add-apt-repository ppa:rmescandon/yq && \
     apt-get update && \
-### Install vctools, colcon, yk for building
+### Install vctools, colcon, yk and cuda-toolkit for building
     apt-get -y --no-install-recommends install python3-vcstool=0.3.0-1 python3-colcon-common-extensions=0.3.0-1 yq=4.16.2
 
 ### Get into workspace
@@ -39,7 +39,7 @@ WORKDIR /opt/mov.ai/app/workspace
 
 ### Build ignition
 RUN colcon graph && \
-    colcon build --cmake-args "-DBUILD_TESTING=OFF" "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_CXX_FLAGS=-O3" --merge-install
+    colcon build --cmake-args "-DBUILD_TESTING=OFF" "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_CXX_FLAGS=-O3" --merge-install --install-base /opt/ignition
 
 FROM pubregistry.aws.cloud.mov.ai/ce/movai-base-focal:v2.4.4
 # This Dockerfile is used to build the ignition
@@ -57,22 +57,22 @@ ENV MOVAI_ENV="release"
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 # Copy install workspace
-COPY --from=deb_builder /opt/mov.ai/app/workspace/install/* /usr/
-COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/workspace/src/requirements.txt
+COPY --from=deb_builder /opt/ignition /opt/ignition
+COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/requirements.txt
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ### Install ignition fortress requirements
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O "/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg" && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
     apt-get update && \
-    apt-get -y --no-install-recommends install \
-    $(cat workspace/src/requirements.txt) && \
+    apt-get -y --no-install-recommends install $(cat requirements.txt) && \
     apt-get clean && \
     rm -rf "/var/lib/apt/lists/*"
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
-    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
+    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep && \
+    ln -s /opt/ignition/bin/ign /usr/bin/ign
 
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
@@ -80,3 +80,5 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
+ENV IGN_CONFIG_PATH=/opt/ignition/share/ignition
+ENV LD_LIBRARY_PATH=/opt/ignition/lib:${LD_LIBRARY_PATH}
