@@ -21,9 +21,6 @@ printf "MOV.AI IGN Simulator - %s\n" "$MOVAI_ENV"
 export PATH=${MOVAI_HOME}/.local/bin:${PATH}
 export PYTHONPATH=${APP_PATH}:${MOVAI_HOME}/sdk:${PYTHONPATH}
 
-# Source ignition setup script
-. ./workspace/install/setup.bash
-
 # if commands passed
 [ $# -gt 0 ] && exec "$@"
 # else

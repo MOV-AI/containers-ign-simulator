@@ -57,22 +57,28 @@ ENV MOVAI_ENV="release"
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 # Copy install workspace
-COPY --from=deb_builder /opt/mov.ai/app/workspace/install /opt/mov.ai/app/workspace/install
-COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/workspace/src/requirements.txt
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/include /opt/ignition/include/
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/lib /opt/ignition/lib/
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/share /opt/ignition/share/
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/bin /opt/ignition/bin/
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/libexec /opt/ignition/libexec/
+
+
+# COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/workspace/src/requirements.txt
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ### Install ignition fortress requirements
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O "/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg" && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
     apt-get update && \
-    apt-get -y --no-install-recommends install \
-    $(cat workspace/src/requirements.txt) && \
+    apt-get -y --no-install-recommends install ruby && \
     apt-get clean && \
     rm -rf "/var/lib/apt/lists/*"
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
-    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep
+    mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep && \
+    ln -s /opt/ignition/bin/ign /usr/bin/ign
 
 ### Set plugin env
 ENV IGN_GAZEBO_SYSTEM_PLUGIN_PATH=${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}:${IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER}
@@ -80,3 +86,4 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
+ENV IGN_CONFIG_PATH=/opt/ignition
