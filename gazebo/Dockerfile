@@ -14,7 +14,7 @@ RUN mkdir -p workspace/src && \
     wget --progress=dot:giga -O - "https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc" | apt-key add - && \
     add-apt-repository ppa:rmescandon/yq && \
     apt-get update && \
-### Install vctools, colcon, yk and cuda-toolkit for building
+### Install vctools, colcon, yk for building
     apt-get -y --no-install-recommends install python3-vcstool=0.3.0-1 python3-colcon-common-extensions=0.3.0-1 yq=4.16.2
 
 ### Get into workspace
@@ -57,7 +57,7 @@ ENV MOVAI_ENV="release"
 COPY ./gazebo/movai-entrypoint.sh /usr/local/bin/movai-entrypoint.sh
 
 # Copy install workspace
-COPY --from=deb_builder /opt/mov.ai/app/workspace/install /opt/mov.ai/app/workspace/install
+COPY --from=deb_builder /opt/mov.ai/app/workspace/install/* /usr/
 COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/workspace/src/requirements.txt
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
