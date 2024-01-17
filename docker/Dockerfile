@@ -24,6 +24,7 @@ ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
 ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
 ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
+ARG APT_REPOSITORY="https://artifacts.aws.cloud.mov.ai/repository"
 
 ENV MOVAI_ENV="release"
 
@@ -47,16 +48,25 @@ COPY ./resources /usr/local/share/pypi-confs/resources
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null  && \
-    echo "Package: *" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin: origin packages.osrfoundation.org" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
+### Add apt repositories
+RUN curl -L --progress-bar "https://packages.osrfoundation.org/gazebo.gpg" -o /usr/share/keyrings/gazebo.gpg && \
+    echo "deb  [signed-by=/usr/share/keyrings/gazebo.gpg] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-gazebo focal main" | tee /etc/apt/sources.list.d/movai-gazebo.list > /dev/null && \
+    curl -fsSL "$APT_REPOSITORY/movai-applications/gpg" | apt-key add - && \
+    add-apt-repository "deb [arch=all] $APT_REPOSITORY/ppa-public main main" && \
+    add-apt-repository "deb [arch=amd64] $APT_REPOSITORY/ppa-proxy-gazebo-backup gazebo-backup main" && \
+### Install mobros 
+    python3 -m pip install pip==23.3.1 --upgrade --no-cache-dir && \
+    python3 -m pip install -i "https://artifacts.cloud.mov.ai/repository/pypi-edge/simple" --extra-index-url "https://pypi.org/simple" --no-cache-dir mobros==2.1.0.8 && \
     apt-get update && \
-### Install ignition-fortress
-    apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
 ## Install messaging broker for async calls, supervisord and gunicorn
     apt-get install -y gnupg=2.2.19-3ubuntu2.2  apt-transport-https=2.0.2 rabbitmq-server=3.8.2-0ubuntu1 supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
+### Install ignition-fortress using mobros
+    mobros install ignition-fortress=1.0.3-2~focal ocl-icd-libopencl1=2.2.11-1ubuntu1 -y && \ 
+### Substitute ignition-sensors libraries by patched version
+    pks=$(apt list --installed libignition-sensors6* 2>/dev/null | awk -F'[/ ]' '{print $1}' | grep lib) && \
+    for pk in $pks; do dpkg -r --force-depends --ignore-depends=libignition-gazebo6-plugins,libignition-gazebo6-dev,ignition-fortress $pk; done && \
+    apt-get download movai-ignition-sensors6=2.7.1-2 && \
+    dpkg -i ./movai-ignition-sensors6_2.7.1-2_all.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
