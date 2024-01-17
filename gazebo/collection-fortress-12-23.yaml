@@ -46,10 +46,8 @@ repositories:
     version: ignition-rendering6_6.6.2
   gz-sensors:
     type: git
-#    url: https://github.com/gazebosim/gz-sensors
-    url: https://github.com/MOV-AI/movai-gz-sensors
-#    version: ignition-sensors6_6.7.1
-    version: 2.7.1-2
+    url: https://github.com/gazebosim/gz-sensors
+    version: ignition-sensors6_6.8.0
   gz-tools:
     type: git
     url: https://github.com/gazebosim/gz-tools
