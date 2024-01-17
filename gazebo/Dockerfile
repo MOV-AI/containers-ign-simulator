@@ -29,6 +29,7 @@ RUN ./update-collection-fortress-to-latest.bash "${LATEST_COMPONENTS[@]}" && \
 ### Import source code
     vcs import < ./fixed-collection-fortress.yaml && \
 ### Install ignition fortress requirements
+    apt-get update && \
     echo "$(sort -u $(find . -iname 'packages-'$(lsb_release -cs)'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/ignition\|sdf/d' | tr '\n' ' ')" > requirements.txt && \
     apt-get -y --no-install-recommends install \
     $(cat requirements.txt) && \
