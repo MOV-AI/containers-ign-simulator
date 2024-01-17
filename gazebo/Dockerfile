@@ -68,7 +68,8 @@ RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O 
     apt-get update && \
     apt-get -y --no-install-recommends install $(cat requirements.txt) && \
     apt-get clean && \
-    rm -rf "/var/lib/apt/lists/*"
+    rm -rf "/var/lib/apt/lists/*" && \
+    rm -rf requirements.txt
 
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
 RUN mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
