@@ -1,3 +1,47 @@
+FROM registry.cloud.mov.ai/qa/ros-buildtools-noetic:v2.0.1 AS deb_builder
+
+USER root
+
+ARG LATEST_COMPONENTS=( )
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+### Create build workspace
+RUN mkdir -p workspace/src && \
+### Add apt repositories (gazebo + ros + yk + nvidia)
+    wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O "/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg" && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+    echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros2-latest.list && \
+    wget --progress=dot:giga -O - "https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc" | apt-key add - && \
+    add-apt-repository ppa:rmescandon/yq && \
+    apt-get update && \
+### Install vctools, colcon, yk and cuda-toolkit for building
+    apt-get -y --no-install-recommends install python3-vcstool=0.3.0-1 python3-colcon-common-extensions=0.3.0-1 yq=4.16.2
+
+### Get into workspace
+WORKDIR /opt/mov.ai/app/workspace/src
+
+# Copy build time data
+COPY ./docker/update-collection-fortress-to-latest.bash ./update-collection-fortress-to-latest.bash
+COPY ./docker/collection-fortress-12-23.yaml ./fixed-collection-fortress.yaml
+
+### Generate fortress collection
+RUN ./update-collection-fortress-to-latest.bash "${LATEST_COMPONENTS[@]}" && \
+### Import source code
+    vcs import < ./fixed-collection-fortress.yaml && \
+### Install ignition fortress requirements
+    apt-get update && \
+    echo "$(sort -u $(find . -iname 'packages-'$(lsb_release -cs)'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/ignition\|sdf/d' | tr '\n' ' ')" > requirements.txt && \
+    apt-get -y --no-install-recommends install \
+    $(cat requirements.txt) && \
+    apt-get clean && \
+    rm -rf "/var/lib/apt/lists/*"
+
+WORKDIR /opt/mov.ai/app/workspace
+
+### Build ignition
+RUN colcon graph && \
+    colcon build --cmake-args "-DBUILD_TESTING=OFF" "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_CXX_FLAGS=-O3" --merge-install --install-base /opt/ignition
+
 FROM python:3.8.10 AS py_builder
 
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
@@ -44,24 +88,26 @@ COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./scripts/setup-pypi-env.sh /usr/local/bin/setup-pypi-env.sh
 COPY ./resources /usr/local/share/pypi-confs/resources
 
+# Copy fortress install workspace
+COPY --from=deb_builder /opt/ignition /opt/ignition
+COPY --from=deb_builder /opt/mov.ai/app/workspace/src/requirements.txt /opt/mov.ai/app/requirements.txt
+
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN wget --progress=dot:giga "https://packages.osrfoundation.org/gazebo.gpg" -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null  && \
-    echo "Package: *" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin: origin packages.osrfoundation.org" >> /etc/apt/preferences.d/ros-gazebo && \
-    echo "Pin-Priority: 1001" >> /etc/apt/preferences.d/ros-gazebo && \
     apt-get update && \
-### Install ignition-fortress
-    apt-get install ignition-fortress=1.0.3-2~focal -y --no-install-recommends && \
 ## Install messaging broker for async calls, supervisord and gunicorn
     apt-get install -y gnupg=2.2.19-3ubuntu2.2  apt-transport-https=2.0.2 rabbitmq-server=3.8.2-0ubuntu1 supervisor=4.1.0-1ubuntu1 gunicorn=20.0.4-3 --no-install-recommends && \
+### Install fortress requirements 
+    apt-get -y --no-install-recommends install $(cat requirements.txt) && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
 ### Set up plugin directories (add .keep to be not removed by deb package on uninstall)
     mkdir -p ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH} && touch ${IGN_GAZEBO_SYSTEM_PLUGIN_PATH}/.keep && \
     mkdir -p ${IGN_GUI_PLUGIN_PATH} && touch ${IGN_GUI_PLUGIN_PATH}/.keep && \
+    ln -s /opt/ignition/bin/ign /usr/bin/ign && \
 ### Make scripts executable
     chmod +x /usr/local/bin/start-celery.sh /usr/local/bin/celery-health-check.sh && \
 ### Add experimental repositories to pip
@@ -101,3 +147,5 @@ ENV IGN_GUI_PLUGIN_PATH=${IGN_GUI_PLUGIN_PATH}:${IGN_GUI_PLUGIN_PATH_USER}
 
 ### Set gazebo resource env
 ENV IGN_GAZEBO_RESOURCE_PATH=${IGN_GAZEBO_RESOURCE_PATH}
+ENV IGN_CONFIG_PATH=/opt/ignition/share/ignition
+ENV LD_LIBRARY_PATH=/opt/ignition/lib:${LD_LIBRARY_PATH}
