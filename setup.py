@@ -16,7 +16,7 @@ requirements = [
 
 setuptools.setup(
     name="simulator_api",
-    version="3.0.0-3",
+    version="3.0.0-4",
     author="Devops team",
     author_email="devops@mov.ai",
     description="Simulator web service",
