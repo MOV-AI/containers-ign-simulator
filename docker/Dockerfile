@@ -68,6 +68,7 @@ ARG IGN_GUI_PLUGIN_PATH=/movai_ign_plugins/gui
 ARG IGN_GAZEBO_SYSTEM_PLUGIN_PATH_USER=/models_database/plugins/system
 ARG IGN_GUI_PLUGIN_PATH_USER=/models_database/plugins/gui
 ARG IGN_GAZEBO_RESOURCE_PATH=/models_database/my_models
+ARG APT_REPOSITORY="https://artifacts.aws.cloud.mov.ai/repository"
 
 ENV MOVAI_ENV="release"
 
