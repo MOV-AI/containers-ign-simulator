@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 requirements = [
     "flask==2.1.2",
-    "requests==2.22.0",
+    "requests==2.31.0"
     "werkzeug==2.3.8",
     "webservercore==1.1.0.4",
     "celery==5.3.5",
