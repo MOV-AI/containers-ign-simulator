@@ -6,9 +6,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 requirements = [
-    "flask==2.1.2",
-    "requests==2.22.0",
-    "werkzeug==2.0",
+    "flask==2.2.5",
+    "requests==2.31.0",
+    "werkzeug==2.3.8",
     "webservercore==1.1.0.4",
     "celery==5.3.5",
     "SQLAlchemy==2.0.23",
