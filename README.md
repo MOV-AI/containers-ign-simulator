@@ -7,9 +7,9 @@ Ignition Simulator Docker image for MOV.AI Framework
 
 Image is built as follow :
 
-| Flavour      | Base Image | IGN |
+| Flavour      | Base Image | IGN build from source |
 | ------------ | ---------- | ------ |
-| ignition-fortress | movai-base-focal:v2.4.4 | 1.0.3-1 |
+| ignition-fortress | movai-base-focal:v2.4.4 | see https://github.com/MOV-AI/containers-ign-simulator/blob/main/docker/collection-fortress-12-23.yaml |
 
 
 
